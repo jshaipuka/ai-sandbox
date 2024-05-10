@@ -15,10 +15,12 @@ BATCH_SIZE = 50000
 
 temp_dir_name = tempfile.mkdtemp()
 
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
+
 def split_into_batches(array, batch_size):
     return np.array_split(array, range(batch_size, len(array), batch_size))
 
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 def build_model(batch_size):
     return keras.Sequential([
@@ -41,20 +43,16 @@ def save_digit(file_name, image):
     as_image(image).save(os.path.join(temp_dir_name, file_name + ".png"))
 
 
-def pick_max_p(distribution):
+def class_with_biggest_probability(distribution):
     return [np.argmax(distribution[index].cpu().detach()) for index in range(len(distribution))]
-
-
-def sample(distribution):
-    answer = torch.squeeze(torch.multinomial(distribution, 1, replacement=True))
-    return answer.cpu().numpy()
 
 
 print("Ready to go")
 
 model = build_model(BATCH_SIZE)
 
-print("device", device)
+print("CUDA device count is", torch.cuda.device_count())
+print("Selected device is", device)
 model.to(device)
 
 model.summary()
@@ -67,9 +65,9 @@ training_targets = training_data[1]
 
 loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
 
-optimizer = torch.optim.SGD(model.parameters(), lr=1e-2, momentum=0.9)
+optimizer = torch.optim.Adam(model.parameters())
 
-for i in range(5000):
+for i in range(1000):
     start = time.time()
     input_batch = torch.from_numpy(np.reshape(training_inputs, [BATCH_SIZE, -1])).to(device)
     target_batch = torch.from_numpy(training_targets).to(device)
@@ -97,7 +95,7 @@ for i in range(min(100, len(validation_input_batches))):
     target_batch = validation_target_batches[i]
     prediction = model(input_batch)
     distribution = softmax(prediction, dim=1)
-    answer_np = sample(distribution)
+    answer_np = class_with_biggest_probability(distribution)
     right_answers = np.sum(answer_np == target_batch)
     for j in range(len(target_batch)):
         if target_batch[j] != answer_np[j]:
@@ -106,4 +104,4 @@ for i in range(min(100, len(validation_input_batches))):
 
 print("Saving wrongly recognized digits to ", temp_dir_name)
 for (index, expected, actual) in wrong_recognition:
-    save_digit(str(index) + "_" + str(expected) + "_" + str(actual), validation_inputs[index])
+    save_digit(str(index) + "_" + str(expected) + "_" + str(actual.item()), validation_inputs[index])
