@@ -1,6 +1,7 @@
 import math
 import os
 import tempfile
+import time
 
 import keras_core as keras
 import numpy as np
@@ -14,10 +15,10 @@ BATCH_SIZE = 50000
 
 temp_dir_name = tempfile.mkdtemp()
 
-
 def split_into_batches(array, batch_size):
     return np.array_split(array, range(batch_size, len(array), batch_size))
 
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 def build_model(batch_size):
     return keras.Sequential([
@@ -53,6 +54,9 @@ print("Ready to go")
 
 model = build_model(BATCH_SIZE)
 
+print("device", device)
+model.to(device)
+
 model.summary()
 
 data = mnist_loader.load_data()
@@ -66,17 +70,19 @@ loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
 optimizer = torch.optim.SGD(model.parameters(), lr=1e-2, momentum=0.9)
 
 for i in range(5000):
-    input_batch = np.reshape(training_inputs, [BATCH_SIZE, -1])
-    target_batch = training_targets
+    start = time.time()
+    input_batch = torch.from_numpy(np.reshape(training_inputs, [BATCH_SIZE, -1])).to(device)
+    target_batch = torch.from_numpy(training_targets).to(device)
 
     prediction = model(input_batch)
-    loss = loss_fn(prediction, torch.LongTensor(target_batch).cuda())
+    loss = loss_fn(prediction, target_batch)
 
     loss.backward()
     optimizer.step()
     optimizer.zero_grad()
+    end = time.time()
     if i % 10 == 0:
-        print(i, loss.item())
+        print(i, loss.item(), end)
 
 validation_data = data[1]
 validation_inputs = validation_data[0]
