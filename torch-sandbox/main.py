@@ -107,9 +107,10 @@ if __name__ == '__main__':
 
     idx2char = np.array(vocab)
 
-    # model = build_model(len(vocab), embedding_dim=256, rnn_units=1024, batch_size=BATCH_SIZE)
-    # model.load_state_dict(torch.load(os.path.join(cwd, "models", "example_model_1400.pt"), map_location='cpu'))
+    # model = build_model(len(vocab), embedding_dim=256, rnn_units=1024, batch_size=1)
+    # model.load_state_dict(torch.load(os.path.join(cwd, "models", "example_model_1100.pt")))
     # model.eval()
+    # print(generate_text(model, char2idx, idx2char, 'X'))
 
     print('{')
     for char, _ in zip(char2idx, range(20)):
