@@ -69,17 +69,17 @@ def build_model(vocabulary_size, embedding_dim, rnn_units, batch_size):
 
 
 def generate_text(model, char_to_index, index_to_char, start_string, generation_length=1000):
-    input_eval = torch.tensor([char_to_index[s] for s in start_string])
+    input_eval = [char_to_index[s] for s in start_string]
 
     text_generated = []
 
     tqdm._instances.clear()
 
     for i in tqdm(range(generation_length)):
-        predictions = torch.squeeze(model(input_eval), 0)
-        predicted_index = torch.multinomial(softmax(predictions, dim=0), 1, replacement=True)
-        input_eval = torch.tensor([predicted_index])
-        text_generated.append(index_to_char[predicted_index.item()])
+        predictions = torch.squeeze(model(torch.tensor(input_eval)), 0)
+        predicted_index = torch.multinomial(softmax(predictions, dim=0), 1, replacement=True)[-1].item()
+        input_eval = input_eval + [predicted_index]
+        text_generated.append(index_to_char[predicted_index])
 
     return start_string + ''.join(text_generated)
 
@@ -98,8 +98,8 @@ def main():
     char_to_index = {u: i for i, u in enumerate(vocabulary)}
     index_to_char = np.array(vocabulary)
 
-    trained_model = load_model(len(vocabulary), "model_700.pt")
-    print(generate_text(trained_model, char_to_index, index_to_char, "X", 5000))
+    trained_model = load_model(len(vocabulary), "example_model_700_no_keras.pt")
+    print(generate_text(trained_model, char_to_index, index_to_char, "X", 1000))
 
     # vectorized_songs = vectorize_string(songs_joined, char_to_index)
     #
