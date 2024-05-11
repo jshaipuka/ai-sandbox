@@ -43,29 +43,18 @@ def get_batch(vectorized_songs, seq_length, batch_size):
 
 class SongsGenerator(torch.nn.Module):
 
-    def __init__(self, vocabulary_size, embedding_dim, hidden_dim):
+    def __init__(self, batch_size, vocabulary_size, embedding_dim, hidden_dim):
         super(SongsGenerator, self).__init__()
+        self.batch_size = batch_size
         self.embedding = torch.nn.Embedding(vocabulary_size, embedding_dim)
-        self.lstm = torch.nn.LSTM(embedding_dim, hidden_dim)
+        self.lstm = torch.nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
         self.linear = torch.nn.Linear(hidden_dim, vocabulary_size)
-        pass
 
-    def forward(self, sequence):
-        embedded = self.embedding(sequence)
-        prediction, _ = self.lstm(embedded.view(len(sequence), 1, -1))
-        scores = self.linear(prediction.view(len(sequence), -1))
-        return log_softmax(scores, dim=1)
-
-
-def build_model(vocabulary_size, embedding_dim, rnn_units, batch_size):
-    shape = (100,)  # TODO: check the shape parameter docs, it was (None, ) previously
-    stateful = False  # TODO: check why setting it to True fails the call to loss.backward()
-    return keras.Sequential(
-        torch.nn.Input(shape=shape, batch_size=batch_size),
-        torch.nn.Embedding(vocabulary_size, embedding_dim),
-        torch.nn.LSTM(rnn_units, return_sequences=True, recurrent_initializer='glorot_uniform', recurrent_activation='sigmoid', stateful=stateful),
-        torch.nn.Dense(vocabulary_size)
-    )
+    def forward(self, sequences):
+        embedded = self.embedding(sequences)
+        prediction, _ = self.lstm(embedded)
+        scores = self.linear(prediction)
+        return log_softmax(scores, dim=2)  # (64, 100, 83)
 
 
 def generate_text(model, char_to_index, index_to_char, start_string, generation_length=1000):
@@ -76,16 +65,16 @@ def generate_text(model, char_to_index, index_to_char, start_string, generation_
     tqdm._instances.clear()
 
     for i in tqdm(range(generation_length)):
-        predictions = torch.squeeze(model(torch.tensor(input_eval)), 0)
+        predictions = torch.squeeze(model(torch.unsqueeze(torch.tensor(input_eval), 0)), 0)
         predicted_index = torch.multinomial(softmax(predictions, dim=0), 1, replacement=True)[-1].item()
-        input_eval = input_eval + [predicted_index]
+        input_eval = [predicted_index]
         text_generated.append(index_to_char[predicted_index])
 
     return start_string + ''.join(text_generated)
 
 
 def load_model(vocabulary_size, file_name):
-    model = SongsGenerator(vocabulary_size, 256, 1024)
+    model = SongsGenerator(1, vocabulary_size, 256, 1024)
     model.load_state_dict(torch.load(os.path.join(cwd, "models", file_name)))
     model.eval()
     return model
@@ -98,30 +87,26 @@ def main():
     char_to_index = {u: i for i, u in enumerate(vocabulary)}
     index_to_char = np.array(vocabulary)
 
-    trained_model = load_model(len(vocabulary), "example_model_700_no_keras.pt")
+    trained_model = load_model(len(vocabulary), "example_model_700_no_keras_with_batches.pt")
     print(generate_text(trained_model, char_to_index, index_to_char, "X", 1000))
 
     # vectorized_songs = vectorize_string(songs_joined, char_to_index)
     #
-    # model = SongsGenerator(len(vocabulary), 256, 1024)
+    # model = SongsGenerator(BATCH_SIZE, len(vocabulary), 256, 1024)
     #
     # loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
     # optimizer = torch.optim.Adam(model.parameters(), lr=5e-3)
     # for epoch in range(800):
     #     input_batch, target_batch = get_batch(vectorized_songs, seq_length=100, batch_size=BATCH_SIZE)
     #
-    #     total_loss = 0
-    #     for i in range(len(input_batch)):
-    #         model.zero_grad()
-    #         prediction = model(torch.tensor(input_batch[i]))
-    #         loss = loss_fn(prediction.cpu(), torch.from_numpy(target_batch[i]).long())
+    #     model.zero_grad()
+    #     prediction = model(torch.tensor(input_batch))
+    #     loss = loss_fn(prediction.permute((0, 2, 1)).cpu(), torch.from_numpy(target_batch).long())
     #
-    #         loss.backward()
-    #         optimizer.step()
+    #     loss.backward()
+    #     optimizer.step()
     #
-    #         total_loss += loss.item()
-    #
-    #     print(epoch, total_loss / len(input_batch))
+    #     print(epoch, loss.item())
     #     if epoch and epoch % 100 == 0:
     #         torch.save(model.state_dict(), os.path.join(cwd, "models", "model_" + str(epoch) + ".pt"))
     #         print("Model has been saved")
