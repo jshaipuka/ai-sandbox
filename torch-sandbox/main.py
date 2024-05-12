@@ -1,11 +1,9 @@
 import os
 
-import keras_core as keras
 import numpy as np
 import regex as re
 import torch
 from torch.nn.functional import softmax, log_softmax
-from tqdm import tqdm
 
 cwd = os.path.dirname(__file__)
 
@@ -57,29 +55,18 @@ class SongsGenerator(torch.nn.Module):
         return log_softmax(scores, dim=1)
 
 
-def build_model(vocabulary_size, embedding_dim, rnn_units, batch_size):
-    shape = (100,)  # TODO: check the shape parameter docs, it was (None, ) previously
-    stateful = False  # TODO: check why setting it to True fails the call to loss.backward()
-    return keras.Sequential(
-        torch.nn.Input(shape=shape, batch_size=batch_size),
-        torch.nn.Embedding(vocabulary_size, embedding_dim),
-        torch.nn.LSTM(rnn_units, return_sequences=True, recurrent_initializer='glorot_uniform', recurrent_activation='sigmoid', stateful=stateful),
-        torch.nn.Dense(vocabulary_size)
-    )
-
-
 def generate_text(model, char_to_index, index_to_char, start_string, generation_length=1000):
     input_eval = [char_to_index[s] for s in start_string]
 
     text_generated = []
 
-    tqdm._instances.clear()
-
-    for i in tqdm(range(generation_length)):
+    for i in range(generation_length):
         predictions = torch.squeeze(model(torch.tensor(input_eval)), 0)
         predicted_index = torch.multinomial(softmax(predictions, dim=0), 1, replacement=True)[-1].item()
-        input_eval = input_eval + [predicted_index]
+        input_eval = [predicted_index]
         text_generated.append(index_to_char[predicted_index])
+        if i % 10 == 0:
+            print("Predicted character", i)
 
     return start_string + ''.join(text_generated)
 
@@ -92,6 +79,9 @@ def load_model(vocabulary_size, file_name):
 
 
 def main():
+    x = torch.tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0], [10.0, 11.0, 12.0]]).unsqueeze(-1)
+    y = x.view(1, x.shape[0] * x.shape[1], x.shape[2])
+
     songs = load_songs()
     songs_joined = "\n\n".join(songs)
     vocabulary = sorted(set(songs_joined))
@@ -99,7 +89,7 @@ def main():
     index_to_char = np.array(vocabulary)
 
     # trained_model = load_model(len(vocabulary), "example_model_700_no_keras.pt")
-    # print(generate_text(trained_model, char_to_index, index_to_char, "X", 1000))
+    # print(generate_text(trained_model, char_to_index, index_to_char, "X", 400))
 
     vectorized_songs = vectorize_string(songs_joined, char_to_index)
 
@@ -122,7 +112,7 @@ def main():
             total_loss += loss.item()
 
         print(epoch, total_loss / len(input_batch))
-        if epoch and epoch % 100 == 0:
+        if (epoch + 1) % 100 == 0:
             torch.save(model.state_dict(), os.path.join(cwd, "models", "model_" + str(epoch) + ".pt"))
             print("Model has been saved")
 
