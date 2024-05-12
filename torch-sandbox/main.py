@@ -98,35 +98,35 @@ def main():
     char_to_index = {u: i for i, u in enumerate(vocabulary)}
     index_to_char = np.array(vocabulary)
 
-    trained_model = load_model(len(vocabulary), "example_model_700_no_keras.pt")
-    print(generate_text(trained_model, char_to_index, index_to_char, "X", 1000))
+    # trained_model = load_model(len(vocabulary), "example_model_700_no_keras.pt")
+    # print(generate_text(trained_model, char_to_index, index_to_char, "X", 1000))
 
-    # vectorized_songs = vectorize_string(songs_joined, char_to_index)
-    #
-    # model = SongsGenerator(len(vocabulary), 256, 1024)
-    #
-    # loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
-    # optimizer = torch.optim.Adam(model.parameters(), lr=5e-3)
-    # for epoch in range(800):
-    #     input_batch, target_batch = get_batch(vectorized_songs, seq_length=100, batch_size=BATCH_SIZE)
-    #
-    #     total_loss = 0
-    #     for i in range(len(input_batch)):
-    #         model.zero_grad()
-    #         prediction = model(torch.tensor(input_batch[i]))
-    #         loss = loss_fn(prediction.cpu(), torch.from_numpy(target_batch[i]).long())
-    #
-    #         loss.backward()
-    #         optimizer.step()
-    #
-    #         total_loss += loss.item()
-    #
-    #     print(epoch, total_loss / len(input_batch))
-    #     if epoch and epoch % 100 == 0:
-    #         torch.save(model.state_dict(), os.path.join(cwd, "models", "model_" + str(epoch) + ".pt"))
-    #         print("Model has been saved")
-    #
-    # print(generate_text(model, char_to_index, index_to_char, 'X'))
+    vectorized_songs = vectorize_string(songs_joined, char_to_index)
+
+    model = SongsGenerator(len(vocabulary), 256, 1024)
+
+    loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
+    optimizer = torch.optim.Adam(model.parameters(), lr=5e-3)
+    for epoch in range(800):
+        input_batch, target_batch = get_batch(vectorized_songs, seq_length=100, batch_size=BATCH_SIZE)
+
+        total_loss = 0
+        for i in range(len(input_batch)):
+            model.zero_grad()
+            prediction = model(torch.tensor(input_batch[i]))
+            loss = loss_fn(prediction.cpu(), torch.from_numpy(target_batch[i]).long())
+
+            loss.backward()
+            optimizer.step()
+
+            total_loss += loss.item()
+
+        print(epoch, total_loss / len(input_batch))
+        if epoch and epoch % 100 == 0:
+            torch.save(model.state_dict(), os.path.join(cwd, "models", "model_" + str(epoch) + ".pt"))
+            print("Model has been saved")
+
+    print(generate_text(model, char_to_index, index_to_char, 'X'))
 
 
 if __name__ == '__main__':
