@@ -10,6 +10,7 @@ from tqdm import tqdm
 cwd = os.path.dirname(__file__)
 
 BATCH_SIZE = 64
+SEQ_LENGTH = 100
 
 
 def assert_gpu_available():
@@ -47,7 +48,7 @@ class SongsGenerator(torch.nn.Module):
         super(SongsGenerator, self).__init__()
         self.batch_size = batch_size
         self.embedding = torch.nn.Embedding(vocabulary_size, embedding_dim)
-        self.lstm = torch.nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
+        self.lstm = torch.nn.LSTM(embedding_dim, hidden_dim)
         self.linear = torch.nn.Linear(hidden_dim, vocabulary_size)
 
     def forward(self, sequences):
@@ -87,31 +88,31 @@ def main():
     char_to_index = {u: i for i, u in enumerate(vocabulary)}
     index_to_char = np.array(vocabulary)
 
-    trained_model = load_model(len(vocabulary), "example_model_700_no_keras_with_batches.pt")
-    print(generate_text(trained_model, char_to_index, index_to_char, "X", 1000))
+    # trained_model = load_model(len(vocabulary), "example_model_700_no_keras_with_batches.pt")
+    # print(generate_text(trained_model, char_to_index, index_to_char, "X", 1000))
 
-    # vectorized_songs = vectorize_string(songs_joined, char_to_index)
-    #
-    # model = SongsGenerator(BATCH_SIZE, len(vocabulary), 256, 1024)
-    #
-    # loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
-    # optimizer = torch.optim.Adam(model.parameters(), lr=5e-3)
-    # for epoch in range(800):
-    #     input_batch, target_batch = get_batch(vectorized_songs, seq_length=100, batch_size=BATCH_SIZE)
-    #
-    #     model.zero_grad()
-    #     prediction = model(torch.tensor(input_batch))
-    #     loss = loss_fn(prediction.permute((0, 2, 1)).cpu(), torch.from_numpy(target_batch).long())
-    #
-    #     loss.backward()
-    #     optimizer.step()
-    #
-    #     print(epoch, loss.item())
-    #     if epoch and epoch % 100 == 0:
-    #         torch.save(model.state_dict(), os.path.join(cwd, "models", "model_" + str(epoch) + ".pt"))
-    #         print("Model has been saved")
-    #
-    # print(generate_text(model, char_to_index, index_to_char, 'X'))
+    vectorized_songs = vectorize_string(songs_joined, char_to_index)
+
+    model = SongsGenerator(BATCH_SIZE, len(vocabulary), 256, 1024)
+
+    loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
+    optimizer = torch.optim.Adam(model.parameters(), lr=5e-3)
+    for epoch in range(500):
+        input_batch, target_batch = get_batch(vectorized_songs, seq_length=SEQ_LENGTH, batch_size=BATCH_SIZE)
+
+        model.zero_grad()
+        prediction = model(torch.tensor(input_batch))
+        loss = loss_fn(prediction.view(BATCH_SIZE * SEQ_LENGTH, -1).cpu(), torch.from_numpy(target_batch).view(BATCH_SIZE * SEQ_LENGTH).long())
+
+        loss.backward()
+        optimizer.step()
+
+        print(epoch, loss.item())
+        if epoch and epoch % 100 == 0:
+            torch.save(model.state_dict(), os.path.join(cwd, "models", "model_" + str(epoch) + ".pt"))
+            print("Model has been saved")
+
+    print(generate_text(model, char_to_index, index_to_char, 'X'))
 
 
 if __name__ == '__main__':
