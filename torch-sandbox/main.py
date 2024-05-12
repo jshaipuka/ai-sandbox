@@ -48,7 +48,7 @@ class SongsGenerator(torch.nn.Module):
         super(SongsGenerator, self).__init__()
         self.batch_size = batch_size
         self.embedding = torch.nn.Embedding(vocabulary_size, embedding_dim)
-        self.lstm = torch.nn.LSTM(embedding_dim, hidden_dim)
+        self.lstm = torch.nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
         self.linear = torch.nn.Linear(hidden_dim, vocabulary_size)
 
     def forward(self, sequences):
