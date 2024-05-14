@@ -9,6 +9,8 @@
 4. Follow [this guide](https://pytorch.org/get-started/locally/) to install PyTorch.
 5. If you are using PyCharm, make sure to [pick the Conda environment](https://stackoverflow.com/a/46133678/1862286) you
    have just created.
+6. Download [abcMIDI](https://github.com/giftmischer69/abcMIDI?tab=readme-ov-file) and add it to `Path`. Try
+   running `abc2midi` from a command line, if you see the man page of the tool, then it's configured properly.
 
 ## Troubleshooting
 

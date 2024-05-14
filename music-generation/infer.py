@@ -1,10 +1,11 @@
 import os
+import tempfile
 
 import numpy as np
 import torch
 from torch.nn.functional import softmax
 
-from common import load_songs, load_model
+from common import load_songs, load_model, extract_song_snippet
 
 cwd = os.path.dirname(__file__)
 
@@ -27,6 +28,11 @@ def generate_text(model, char_to_index, index_to_char, start_string, generation_
     return start_string + ''.join(text_generated)
 
 
+def save_song_to_abc(song, file_name="tmp"):
+    with open(file_name, "w") as f:
+        f.write(song)
+
+
 def infer():
     songs = load_songs()
     songs_joined = "\n\n".join(songs)
@@ -35,7 +41,17 @@ def infer():
     index_to_char = np.array(vocabulary)
 
     trained_model = load_model(len(vocabulary), "main_model_700_pure_pytorch.pt")
-    print(generate_text(trained_model, char_to_index, index_to_char, "X", 2000))
+    predicted_text = generate_text(trained_model, char_to_index, index_to_char, "X", 2000)
+    print(predicted_text)
+    generated_songs = extract_song_snippet(predicted_text)
+    temp_dir_name = tempfile.mkdtemp()
+    for i, song in enumerate(generated_songs):
+        abc_file = os.path.join(temp_dir_name, "song_{}.abc".format(i))
+        save_song_to_abc(song, abc_file)
+        mid_file = os.path.join(temp_dir_name, "song_{}.mid".format(i))
+        cmd = "{} {} -o {}".format("abc2midi", abc_file, mid_file)
+        os.system(cmd)
+    print("Saved", len(generated_songs), "songs to", temp_dir_name)
 
 
 infer()
