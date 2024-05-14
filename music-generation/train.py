@@ -3,7 +3,7 @@ import os
 import numpy as np
 import torch
 
-from common import Model, load_songs, BATCH_SIZE
+from common import Model, load_songs, BATCH_SIZE, HIDDEN_DIM
 
 cwd = os.path.dirname(__file__)
 
