@@ -30,7 +30,7 @@ def train():
     char_to_index = {u: i for i, u in enumerate(vocabulary)}
     vectorized_songs = vectorize_string(songs_joined, char_to_index)
 
-    model = Model(len(vocabulary), 256, 1024)
+    model = Model(len(vocabulary), 256, HIDDEN_DIM)
 
     loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
     optimizer = torch.optim.Adam(model.parameters(), lr=5e-3)

@@ -7,6 +7,7 @@ from torch.nn.functional import log_softmax
 cwd = os.path.dirname(__file__)
 
 BATCH_SIZE = 64
+HIDDEN_DIM = 1024
 
 
 class Model(torch.nn.Module):
@@ -16,7 +17,6 @@ class Model(torch.nn.Module):
         self.embedding = torch.nn.Embedding(vocabulary_size, embedding_dim)
         self.lstm = torch.nn.LSTM(embedding_dim, hidden_dim)
         self.linear = torch.nn.Linear(hidden_dim, vocabulary_size)
-        pass
 
     def forward(self, sequence, hidden):
         embedded = self.embedding(sequence)
@@ -40,7 +40,7 @@ def load_songs():
 
 
 def load_model(vocabulary_size, file_name):
-    model = Model(vocabulary_size, 256, 1024)
+    model = Model(vocabulary_size, 256, HIDDEN_DIM)
     model.load_state_dict(torch.load(os.path.join(cwd, "models", file_name)))
     model.eval()
     return model
