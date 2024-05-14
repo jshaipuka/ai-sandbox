@@ -6,6 +6,8 @@ from torch.nn.functional import log_softmax
 
 cwd = os.path.dirname(__file__)
 
+BATCH_SIZE = 64
+
 
 class Model(torch.nn.Module):
 

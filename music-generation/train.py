@@ -3,9 +3,7 @@ import os
 import numpy as np
 import torch
 
-from common import Model, load_songs
-
-BATCH_SIZE = 64
+from common import Model, load_songs, BATCH_SIZE
 
 cwd = os.path.dirname(__file__)
 
