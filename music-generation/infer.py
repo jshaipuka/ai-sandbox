@@ -39,7 +39,7 @@ def infer():
     char_to_index = {u: i for i, u in enumerate(vocabulary)}
     index_to_char = np.array(vocabulary)
 
-    trained_model = load_model(len(vocabulary), "main_model_700_pure_pytorch.pt")
+    trained_model = load_model(len(vocabulary), "main_model_1599.pt")
     predicted_text = generate_text(trained_model, char_to_index, index_to_char, "X", 2000)
     print(predicted_text)
     generated_songs = extract_song_snippet(predicted_text)

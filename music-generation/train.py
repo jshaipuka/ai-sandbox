@@ -34,13 +34,15 @@ def train():
 
     loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
     optimizer = torch.optim.Adam(model.parameters(), lr=5e-3)
-    for epoch in range(800):
+    for epoch in range(1600):
         input_batch, target_batch = get_batch(vectorized_songs, seq_length=100, batch_size=BATCH_SIZE)
 
         total_loss = 0
         for i in range(len(input_batch)):
             model.zero_grad()
-            prediction = model(torch.tensor(input_batch[i]))
+            h_0, c_0 = torch.zeros(1, 1, HIDDEN_DIM), torch.zeros(1, 1, HIDDEN_DIM)
+            hidden = (h_0, c_0)
+            prediction, _ = model(torch.tensor(input_batch[i]), hidden)
             loss = loss_fn(prediction.cpu(), torch.from_numpy(target_batch[i]).long())
 
             loss.backward()
