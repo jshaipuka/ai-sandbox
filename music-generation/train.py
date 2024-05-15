@@ -35,22 +35,19 @@ def train():
     loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
     optimizer = torch.optim.Adam(model.parameters(), lr=5e-3)
     for epoch in range(1600):
-        input_batch, target_batch = get_batch(vectorized_songs, seq_length=100, batch_size=BATCH_SIZE)
+        input_batch, target_batch = get_batch(vectorized_songs, seq_length=100, batch_size=BATCH_SIZE)  # (64, 100)
 
-        total_loss = 0
-        for i in range(len(input_batch)):
-            model.zero_grad()
-            h_0, c_0 = torch.zeros(1, 1, HIDDEN_DIM), torch.zeros(1, 1, HIDDEN_DIM)
-            hidden = (h_0, c_0)
-            prediction, _ = model(torch.tensor(input_batch[i]), hidden)
-            loss = loss_fn(prediction.cpu(), torch.from_numpy(target_batch[i]).long())
+        model.zero_grad()
+        h_0, c_0 = torch.zeros(1, BATCH_SIZE, HIDDEN_DIM), torch.zeros(1, BATCH_SIZE, HIDDEN_DIM)
+        hidden = (h_0, c_0)
+        prediction, _ = model(torch.tensor(input_batch), hidden)
+        loss = loss_fn(prediction.view(BATCH_SIZE * 100, -1).cpu(), torch.squeeze(torch.from_numpy(target_batch).view(BATCH_SIZE * 100, -1)).long())  # (64, 100, 83), (64, 100)
 
-            loss.backward()
-            optimizer.step()
+        loss.backward()
+        optimizer.step()
 
-            total_loss += loss.item()
-
-        print(epoch, total_loss / len(input_batch))
+        if epoch % 10 == 0:
+            print(epoch, loss.item())
         if (epoch + 1) % 100 == 0:
             torch.save(model.state_dict(), os.path.join(cwd, "models", "model_" + str(epoch) + ".pt"))
             print("Model has been saved")

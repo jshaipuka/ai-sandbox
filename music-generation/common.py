@@ -15,14 +15,14 @@ class Model(torch.nn.Module):
     def __init__(self, vocabulary_size, embedding_dim, hidden_dim):
         super(Model, self).__init__()
         self.embedding = torch.nn.Embedding(vocabulary_size, embedding_dim)
-        self.lstm = torch.nn.LSTM(embedding_dim, hidden_dim)
+        self.lstm = torch.nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
         self.linear = torch.nn.Linear(hidden_dim, vocabulary_size)
 
     def forward(self, sequence, hidden):
-        embedded = self.embedding(sequence)
-        prediction, hidden = self.lstm(embedded.view(len(sequence), 1, -1), hidden)
-        scores = self.linear(prediction.view(len(sequence), -1))
-        return log_softmax(scores, dim=-1), hidden
+        embedded = self.embedding(sequence)  # (64, 100, 256)
+        prediction, hidden = self.lstm(embedded, hidden)  # (64, 100, 1024)
+        scores = self.linear(prediction)  # (64, 100, 83)
+        return log_softmax(scores, dim=-1), hidden  # (64, 100, 83)
 
 
 def extract_song_snippet(text):

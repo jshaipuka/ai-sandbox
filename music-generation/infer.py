@@ -17,7 +17,7 @@ def generate_text(model, char_to_index, index_to_char, start_string, generation_
     text_generated = []
 
     for i in range(generation_length):
-        predictions, hidden = model(torch.tensor(input_eval), hidden)
+        predictions, hidden = model(torch.unsqueeze(torch.tensor(input_eval), 0), hidden)
         predicted_index = torch.multinomial(predictions.view(-1).exp(), 1).item()
         input_eval = [predicted_index]
         text_generated.append(index_to_char[predicted_index])
