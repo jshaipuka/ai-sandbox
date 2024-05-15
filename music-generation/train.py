@@ -24,13 +24,15 @@ def get_batch(vectorized_songs, seq_length, batch_size):
 
 
 def train():
+    device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
+    print("Device is", device)
     songs = load_songs()
     songs_joined = "\n\n".join(songs)
     vocabulary = sorted(set(songs_joined))
     char_to_index = {u: i for i, u in enumerate(vocabulary)}
     vectorized_songs = vectorize_string(songs_joined, char_to_index)
 
-    model = Model(len(vocabulary), 256, HIDDEN_DIM)
+    model = Model(len(vocabulary), 256, HIDDEN_DIM).to(device)
 
     loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
     optimizer = torch.optim.Adam(model.parameters(), lr=5e-3)
@@ -39,8 +41,8 @@ def train():
 
         model.zero_grad()
         h_0, c_0 = torch.zeros(1, BATCH_SIZE, HIDDEN_DIM), torch.zeros(1, BATCH_SIZE, HIDDEN_DIM)
-        hidden = (h_0, c_0)
-        prediction, _ = model(torch.tensor(input_batch), hidden)
+        hidden = (h_0.to(device), c_0.to(device))
+        prediction, _ = model(torch.tensor(input_batch).to(device), hidden)
         loss = loss_fn(prediction.view(BATCH_SIZE * SEQ_LENGTH, -1).cpu(), torch.from_numpy(target_batch).view(BATCH_SIZE * SEQ_LENGTH).long())
 
         loss.backward()
