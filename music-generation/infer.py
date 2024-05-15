@@ -4,12 +4,12 @@ import tempfile
 import numpy as np
 import torch
 
-from common import load_songs, load_model, extract_song_snippet, HIDDEN_DIM
+from common import load_songs, extract_song_snippet, HIDDEN_DIM, Model
 
 cwd = os.path.dirname(__file__)
 
 
-def generate_text(model, char_to_index, index_to_char, start_string, generation_length=1000):
+def _generate_text(model, char_to_index, index_to_char, start_string, generation_length=1000):
     h_0, c_0 = torch.zeros(1, 1, HIDDEN_DIM), torch.zeros(1, 1, HIDDEN_DIM)
     hidden = (h_0, c_0)
     input_eval = [char_to_index[s] for s in start_string]
@@ -27,30 +27,37 @@ def generate_text(model, char_to_index, index_to_char, start_string, generation_
     return start_string + ''.join(text_generated)
 
 
-def save_song_to_abc(song, file_name):
+def _save_song_to_abc(song, file_name):
     with open(file_name, "w") as f:
         f.write(song)
 
 
-def infer():
+def _load_model(vocabulary_size, file_name):
+    model = Model(vocabulary_size, 256, HIDDEN_DIM)
+    model.load_state_dict(torch.load(os.path.join(cwd, "models", file_name)))
+    model.eval()
+    return model
+
+
+def _infer():
     songs = load_songs()
     songs_joined = "\n\n".join(songs)
     vocabulary = sorted(set(songs_joined))
     char_to_index = {u: i for i, u in enumerate(vocabulary)}
     index_to_char = np.array(vocabulary)
 
-    trained_model = load_model(len(vocabulary), "main_model_1599.pt")
-    predicted_text = generate_text(trained_model, char_to_index, index_to_char, "X", 2000)
+    trained_model = _load_model(len(vocabulary), "main_model_1599.pt")
+    predicted_text = _generate_text(trained_model, char_to_index, index_to_char, "X", 2000)
     print(predicted_text)
     generated_songs = extract_song_snippet(predicted_text)
     temp_dir_name = tempfile.mkdtemp()
     for i, song in enumerate(generated_songs):
         abc_file = os.path.join(temp_dir_name, "song_{}.abc".format(i))
-        save_song_to_abc(song, abc_file)
+        _save_song_to_abc(song, abc_file)
         mid_file = os.path.join(temp_dir_name, "song_{}.mid".format(i))
         cmd = "{} {} -o {}".format("abc2midi", abc_file, mid_file)
         os.system(cmd)
     print("Saved", len(generated_songs), "songs to", temp_dir_name)
 
 
-infer()
+_infer()

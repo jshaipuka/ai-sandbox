@@ -1,7 +1,6 @@
 import os
 
 import regex as re
-import torch
 import torch.nn as nn
 from torch.nn.functional import log_softmax
 
@@ -39,10 +38,3 @@ def load_songs():
     with open(os.path.join(cwd, "data", "irish.abc"), "r") as f:
         text = f.read()
     return extract_song_snippet(text)
-
-
-def load_model(vocabulary_size, file_name):
-    model = Model(vocabulary_size, 256, HIDDEN_DIM)
-    model.load_state_dict(torch.load(os.path.join(cwd, "models", file_name)))
-    model.eval()
-    return model
