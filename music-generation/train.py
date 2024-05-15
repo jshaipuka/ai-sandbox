@@ -46,8 +46,9 @@ def train():
         if epoch % 10 == 0:
             print(epoch, loss.item())
         if (epoch + 1) % 100 == 0:
-            torch.save(model.state_dict(), os.path.join(cwd, "models", "model_" + str(epoch) + ".pt"))
-            print("Model has been saved")
+            file_name = "model_" + str(epoch) + ".pt"
+            torch.save(model.state_dict(), os.path.join(cwd, "models", file_name))
+            print("Model has been saved as", file_name)
 
     print("Training finished")
 

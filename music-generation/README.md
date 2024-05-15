@@ -21,3 +21,4 @@ the [MIT Introduction to Deep Learning](http://introtodeeplearning.com/) course.
 ## Troubleshooting
 
 1. If you have no `conda` command, try using Anaconda Prompt.
+2. If you suspect that CUDA is not used, run the `nvidia-smi` command and check `GPU-Util`.
