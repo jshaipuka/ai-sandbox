@@ -40,10 +40,9 @@ def train():
         input_batch, target_batch = get_batch(vectorized_songs, seq_length=SEQ_LENGTH, batch_size=BATCH_SIZE)
 
         model.zero_grad()
-        h_0, c_0 = torch.zeros(1, BATCH_SIZE, HIDDEN_DIM), torch.zeros(1, BATCH_SIZE, HIDDEN_DIM)
-        hidden = (h_0.to(device), c_0.to(device))
-        prediction, _ = model(torch.tensor(input_batch).to(device), hidden)
-        loss = loss_fn(prediction.view(BATCH_SIZE * SEQ_LENGTH, -1).cpu(), torch.from_numpy(target_batch).view(BATCH_SIZE * SEQ_LENGTH).long())
+        h_0, c_0 = torch.zeros(1, BATCH_SIZE, HIDDEN_DIM).to(device), torch.zeros(1, BATCH_SIZE, HIDDEN_DIM).to(device)
+        prediction, _ = model(torch.tensor(input_batch).to(device), (h_0, c_0))
+        loss = loss_fn(prediction.view(BATCH_SIZE * SEQ_LENGTH, -1), torch.from_numpy(target_batch).to(device).view(BATCH_SIZE * SEQ_LENGTH).long())
 
         loss.backward()
         optimizer.step()
