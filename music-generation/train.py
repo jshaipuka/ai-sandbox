@@ -41,7 +41,7 @@ def train():
         h_0, c_0 = torch.zeros(1, BATCH_SIZE, HIDDEN_DIM), torch.zeros(1, BATCH_SIZE, HIDDEN_DIM)
         hidden = (h_0, c_0)
         prediction, _ = model(torch.tensor(input_batch), hidden)
-        loss = loss_fn(prediction.view(BATCH_SIZE * SEQ_LENGTH, -1).cpu(), torch.squeeze(torch.from_numpy(target_batch).view(BATCH_SIZE * SEQ_LENGTH, -1)).long())
+        loss = loss_fn(prediction.view(BATCH_SIZE * SEQ_LENGTH, -1).cpu(), torch.from_numpy(target_batch).view(BATCH_SIZE * SEQ_LENGTH).long())
 
         loss.backward()
         optimizer.step()
