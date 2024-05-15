@@ -7,6 +7,7 @@ from torch.nn.functional import log_softmax
 cwd = os.path.dirname(__file__)
 
 BATCH_SIZE = 64
+SEQ_LENGTH = 100
 HIDDEN_DIM = 1024
 
 
@@ -19,10 +20,10 @@ class Model(torch.nn.Module):
         self.linear = torch.nn.Linear(hidden_dim, vocabulary_size)
 
     def forward(self, sequence, hidden):
-        embedded = self.embedding(sequence)  # (64, 100, 256)
-        prediction, hidden = self.lstm(embedded, hidden)  # (64, 100, 1024)
-        scores = self.linear(prediction)  # (64, 100, 83)
-        return log_softmax(scores, dim=-1), hidden  # (64, 100, 83)
+        embedded = self.embedding(sequence)
+        prediction, hidden = self.lstm(embedded, hidden)
+        scores = self.linear(prediction)
+        return log_softmax(scores, dim=-1), hidden
 
 
 def extract_song_snippet(text):

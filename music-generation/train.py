@@ -3,7 +3,7 @@ import os
 import numpy as np
 import torch
 
-from common import Model, load_songs, BATCH_SIZE, HIDDEN_DIM
+from common import Model, load_songs, BATCH_SIZE, HIDDEN_DIM, SEQ_LENGTH
 
 cwd = os.path.dirname(__file__)
 
@@ -35,13 +35,13 @@ def train():
     loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
     optimizer = torch.optim.Adam(model.parameters(), lr=5e-3)
     for epoch in range(1600):
-        input_batch, target_batch = get_batch(vectorized_songs, seq_length=100, batch_size=BATCH_SIZE)  # (64, 100)
+        input_batch, target_batch = get_batch(vectorized_songs, seq_length=SEQ_LENGTH, batch_size=BATCH_SIZE)
 
         model.zero_grad()
         h_0, c_0 = torch.zeros(1, BATCH_SIZE, HIDDEN_DIM), torch.zeros(1, BATCH_SIZE, HIDDEN_DIM)
         hidden = (h_0, c_0)
         prediction, _ = model(torch.tensor(input_batch), hidden)
-        loss = loss_fn(prediction.view(BATCH_SIZE * 100, -1).cpu(), torch.squeeze(torch.from_numpy(target_batch).view(BATCH_SIZE * 100, -1)).long())  # (64, 100, 83), (64, 100)
+        loss = loss_fn(prediction.view(BATCH_SIZE * SEQ_LENGTH, -1).cpu(), torch.squeeze(torch.from_numpy(target_batch).view(BATCH_SIZE * SEQ_LENGTH, -1)).long())
 
         loss.backward()
         optimizer.step()
