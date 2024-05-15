@@ -8,10 +8,6 @@ from common import Model, load_songs, BATCH_SIZE, HIDDEN_DIM, SEQ_LENGTH
 cwd = os.path.dirname(__file__)
 
 
-def assert_gpu_available():
-    assert torch.cuda.is_available(), "GPU is not available"
-
-
 def vectorize_string(string, character_to_index):
     return np.array([character_to_index[character] for character in string])
 
