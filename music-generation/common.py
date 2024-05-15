@@ -2,6 +2,7 @@ import os
 
 import regex as re
 import torch
+import torch.nn as nn
 from torch.nn.functional import log_softmax
 
 cwd = os.path.dirname(__file__)
@@ -11,13 +12,13 @@ SEQ_LENGTH = 500
 HIDDEN_DIM = 1024
 
 
-class Model(torch.nn.Module):
+class Model(nn.Module):
 
     def __init__(self, vocabulary_size, embedding_dim, hidden_dim):
         super(Model, self).__init__()
-        self.embedding = torch.nn.Embedding(vocabulary_size, embedding_dim)
-        self.lstm = torch.nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
-        self.linear = torch.nn.Linear(hidden_dim, vocabulary_size)
+        self.embedding = nn.Embedding(vocabulary_size, embedding_dim)
+        self.lstm = nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
+        self.linear = nn.Linear(hidden_dim, vocabulary_size)
 
     def forward(self, sequence, hidden):
         embedded = self.embedding(sequence)

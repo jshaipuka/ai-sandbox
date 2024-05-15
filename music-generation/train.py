@@ -2,6 +2,8 @@ import os
 
 import numpy as np
 import torch
+import torch.nn as nn
+import torch.optim as optim
 
 from common import Model, load_songs, BATCH_SIZE, HIDDEN_DIM, SEQ_LENGTH
 
@@ -30,8 +32,8 @@ def train():
 
     model = Model(len(vocabulary), 256, HIDDEN_DIM).to(device)
 
-    loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
-    optimizer = torch.optim.Adam(model.parameters(), lr=5e-3)
+    loss_fn = nn.CrossEntropyLoss(reduction='mean')
+    optimizer = optim.Adam(model.parameters(), lr=5e-3)
     for epoch in range(1600):
         input_batch, target_batch = get_batch(vectorized_songs, seq_length=SEQ_LENGTH, batch_size=BATCH_SIZE)
 
