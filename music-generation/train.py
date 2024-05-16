@@ -37,13 +37,13 @@ def _train():
     for epoch in range(1600):
         input_batch, target_batch = _get_batch(vectorized_songs, seq_length=SEQ_LENGTH, batch_size=BATCH_SIZE)
 
-        model.zero_grad()
         h_0, c_0 = torch.zeros(1, BATCH_SIZE, HIDDEN_DIM).to(device), torch.zeros(1, BATCH_SIZE, HIDDEN_DIM).to(device)
         prediction, _ = model(torch.tensor(input_batch).to(device), (h_0, c_0))
         loss = loss_fn(prediction.view(BATCH_SIZE * SEQ_LENGTH, -1), torch.from_numpy(target_batch).to(device).view(BATCH_SIZE * SEQ_LENGTH).long())
 
         loss.backward()
         optimizer.step()
+        model.zero_grad()
 
         if epoch % 10 == 0:
             print(epoch, loss.item())
