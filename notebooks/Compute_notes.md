@@ -12,7 +12,7 @@ Basically:
 
 # Training GPU cards
 
-Same code was run as in 'Traning on Azure Machine Learning Compute' section, but only on PyTorch. GPU cards were used for Pytorch. OS = Windows.
+Same code was run as in 'Traning on Azure Machine Learning Compute' section, but only on PyTorch. CUDA was used for Pytorch. OS = Windows.
 
 1. NVIDIA GeForce GTX 1660 Ti (6GB VRAM)
 Pytorch    36 min
