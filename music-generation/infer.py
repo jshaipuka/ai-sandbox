@@ -18,7 +18,7 @@ def _generate_text(model, char_to_index, index_to_char, start_string, generation
 
     for i in range(generation_length):
         predictions, hidden = model(torch.unsqueeze(torch.tensor(input_eval), 0), hidden)
-        predicted_index = torch.multinomial(predictions.view(-1).exp(), 1).item()
+        predicted_index = torch.multinomial(torch.squeeze(predictions).exp(), 1).item()
         input_eval = [predicted_index]
         text_generated.append(index_to_char[predicted_index])
         if (i + 1) % 10 == 0:
