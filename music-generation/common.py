@@ -16,13 +16,13 @@ class Model(nn.Module):
     def __init__(self, vocabulary_size, embedding_dim, hidden_dim):
         super(Model, self).__init__()
         self.embedding = nn.Embedding(vocabulary_size, embedding_dim)
-        self.lstm = nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
+        self.lstm = nn.LSTM(embedding_dim, hidden_dim)
         self.linear = nn.Linear(hidden_dim, vocabulary_size)
 
     def forward(self, sequence, hidden):
         embedded = self.embedding(sequence)
-        prediction, hidden = self.lstm(embedded, hidden)
-        scores = self.linear(prediction)
+        prediction, hidden = self.lstm(embedded.transpose(1, 0), hidden)
+        scores = self.linear(prediction.transpose(1, 0))
         return log_softmax(scores, dim=-1), hidden
 
 
