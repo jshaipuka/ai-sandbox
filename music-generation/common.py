@@ -6,8 +6,8 @@ from torch.nn.functional import log_softmax
 
 cwd = os.path.dirname(__file__)
 
-BATCH_SIZE = 256
-SEQ_LENGTH = 500
+BATCH_SIZE = 64
+SEQ_LENGTH = 100
 HIDDEN_DIM = 1024
 
 

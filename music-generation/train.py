@@ -39,7 +39,7 @@ def _train():
 
         h_0, c_0 = torch.zeros(1, BATCH_SIZE, HIDDEN_DIM).to(device), torch.zeros(1, BATCH_SIZE, HIDDEN_DIM).to(device)
         prediction, _ = model(torch.tensor(input_batch).to(device), (h_0, c_0))
-        loss = loss_fn(prediction.view(BATCH_SIZE * SEQ_LENGTH, -1), torch.from_numpy(target_batch).to(device).view(BATCH_SIZE * SEQ_LENGTH).long())
+        loss = loss_fn(prediction.permute(0, 2, 1), torch.from_numpy(target_batch).to(device).long())
 
         loss.backward()
         optimizer.step()
