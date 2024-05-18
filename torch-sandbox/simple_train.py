@@ -16,7 +16,7 @@ training_data = data[0]
 training_inputs = training_data[0]
 training_targets = training_data[1]
 
-loss_fn = nn.CrossEntropyLoss(reduction='mean')
+loss_fn = nn.CrossEntropyLoss(reduction="sum")
 optimizer = optim.Adam(model.parameters(), lr=5e-3)
 
 for epoch in range(400):
