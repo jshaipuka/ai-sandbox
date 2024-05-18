@@ -36,14 +36,10 @@ def sample_probability_distribution(distribution):
     return answer.cpu().numpy()
 
 
-print("Ready to go")
-
 model = keras.models.load_model(os.path.join(cwd, "models", "simple_model.keras"))
-
 model.summary()
 
 data = mnist_loader.load_data()
-
 validation_data = data[1]
 validation_inputs = validation_data[0]
 validation_targets = validation_data[1]

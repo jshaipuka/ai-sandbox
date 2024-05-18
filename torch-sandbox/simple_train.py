@@ -9,17 +9,14 @@ import mnist_loader
 from simple_common import build_model, cwd, BATCH_SIZE
 
 model = build_model(BATCH_SIZE)
-
 model.summary()
 
 data = mnist_loader.load_data()
-
 training_data = data[0]
 training_inputs = training_data[0]
 training_targets = training_data[1]
 
 loss_fn = nn.CrossEntropyLoss(reduction='mean')
-
 optimizer = optim.Adam(model.parameters(), lr=5e-3)
 
 for epoch in range(400):
