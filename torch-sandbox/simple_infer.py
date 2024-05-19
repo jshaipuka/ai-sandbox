@@ -20,7 +20,7 @@ def split_into_batches(array, batch_size):
 
 
 def as_image(image):
-    return Image.fromarray((255 * np.reshape(image, (math.isqrt(image.size), -1))).astype('uint8'))
+    return Image.fromarray((255 * np.reshape(image, (math.isqrt(image.size), -1))).astype("uint8"))
 
 
 def save_digit(file_name, image):
@@ -36,7 +36,7 @@ def sample_probability_distribution(distribution):
     return answer.cpu().numpy()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     model = keras.models.load_model(os.path.join(cwd, "models", "simple_model.keras"))
     model.summary()
 

@@ -8,7 +8,7 @@ import torch.optim as optim
 import mnist_loader
 from simple_common import build_model, cwd, BATCH_SIZE
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     model = build_model(BATCH_SIZE)
     model.summary()
 
