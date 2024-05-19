@@ -24,7 +24,7 @@ def _generate_text(model, char_to_index, index_to_char, start_string, generation
         if (i + 1) % 10 == 0:
             print("Predicted", i + 1, "characters out of", generation_length)
 
-    return start_string + ''.join(text_generated)
+    return start_string + "".join(text_generated)
 
 
 def _save_song_to_abc(song, file_name):
@@ -39,7 +39,7 @@ def _load_model(vocabulary_size, file_name):
     return model
 
 
-def _infer():
+def infer():
     songs = load_songs()
     songs_joined = "\n\n".join(songs)
     vocabulary = sorted(set(songs_joined))
@@ -60,4 +60,5 @@ def _infer():
     print("Saved", len(generated_songs), "songs to", temp_dir_name)
 
 
-_infer()
+if __name__ == "__main__":
+    infer()

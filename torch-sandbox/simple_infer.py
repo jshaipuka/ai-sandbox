@@ -36,29 +36,30 @@ def sample_probability_distribution(distribution):
     return answer.cpu().numpy()
 
 
-model = keras.models.load_model(os.path.join(cwd, "models", "simple_model.keras"))
-model.summary()
+if __name__ == '__main__':
+    model = keras.models.load_model(os.path.join(cwd, "models", "simple_model.keras"))
+    model.summary()
 
-data = mnist_loader.load_data()
-validation_data = data[1]
-validation_inputs = validation_data[0]
-validation_targets = validation_data[1]
-validation_input_batches = split_into_batches(validation_inputs, BATCH_SIZE)
-validation_target_batches = split_into_batches(validation_targets, BATCH_SIZE)
+    data = mnist_loader.load_data()
+    validation_data = data[1]
+    validation_inputs = validation_data[0]
+    validation_targets = validation_data[1]
+    validation_input_batches = split_into_batches(validation_inputs, BATCH_SIZE)
+    validation_target_batches = split_into_batches(validation_targets, BATCH_SIZE)
 
-wrong_recognition = []
+    wrong_recognition = []
 
-for i in range(min(100, len(validation_input_batches))):
-    input_batch = validation_input_batches[i]
-    target_batch = validation_target_batches[i]
-    prediction = model(input_batch)
-    answer_np = sample_probability_distribution(prediction)
-    right_answers = np.sum(answer_np == target_batch)
-    for j in range(len(target_batch)):
-        if target_batch[j] != answer_np[j]:
-            wrong_recognition.append((j, target_batch[j], answer_np[j]))
-    print("Got ", right_answers, " right answers out of ", len(target_batch))
+    for i in range(min(100, len(validation_input_batches))):
+        input_batch = validation_input_batches[i]
+        target_batch = validation_target_batches[i]
+        prediction = model(input_batch)
+        answer_np = sample_probability_distribution(prediction)
+        right_answers = np.sum(answer_np == target_batch)
+        for j in range(len(target_batch)):
+            if target_batch[j] != answer_np[j]:
+                wrong_recognition.append((j, target_batch[j], answer_np[j]))
+        print("Got ", right_answers, " right answers out of ", len(target_batch))
 
-print("Saving wrongly recognized digits to ", temp_dir_name)
-for (index, expected, actual) in wrong_recognition:
-    save_digit(str(index) + "_" + str(expected) + "_" + str(actual), validation_inputs[index])
+    print("Saving wrongly recognized digits to ", temp_dir_name)
+    for (index, expected, actual) in wrong_recognition:
+        save_digit(str(index) + "_" + str(expected) + "_" + str(actual), validation_inputs[index])

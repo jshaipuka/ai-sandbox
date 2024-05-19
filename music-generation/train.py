@@ -21,8 +21,8 @@ def _get_batch(vectorized_songs, seq_length, batch_size):
     return x_batch, y_batch
 
 
-def _train():
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+def train():
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print("Device is", device)
     songs = load_songs()
     songs_joined = "\n\n".join(songs)
@@ -32,8 +32,8 @@ def _train():
 
     model = Model(len(vocabulary), 256, HIDDEN_DIM).to(device)
 
-    loss_fn = nn.CrossEntropyLoss(reduction='mean')
-    optimizer = optim.Adam(model.parameters(), lr=5e-3)
+    loss_fn = nn.CrossEntropyLoss(reduction="mean")
+    optimizer = optim.SGD(model.parameters(), lr=5e-3)
     for epoch in range(1600):
         input_batch, target_batch = _get_batch(vectorized_songs, seq_length=SEQ_LENGTH, batch_size=BATCH_SIZE)
 
@@ -48,11 +48,12 @@ def _train():
         if epoch % 10 == 0:
             print(epoch, loss.item())
         if (epoch + 1) % 100 == 0:
-            file_name = "model_" + str(epoch) + ".pt"
+            file_name = "model_" + str(epoch + 1) + ".pt"
             torch.save(model.state_dict(), os.path.join(cwd, "models", file_name))
             print("Model has been saved as", file_name)
 
     print("Training finished")
 
 
-_train()
+if __name__ == "__main__":
+    train()
