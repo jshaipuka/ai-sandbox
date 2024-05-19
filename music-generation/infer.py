@@ -18,13 +18,13 @@ def _generate_text(model, char_to_index, index_to_char, start_string, generation
 
     for i in range(generation_length):
         predictions, hidden = model(torch.unsqueeze(torch.tensor(input_eval), 0), hidden)
-        predicted_index = torch.multinomial(predictions.view(-1).exp(), 1).item()
+        predicted_index = torch.multinomial(torch.squeeze(predictions).exp(), 1).item()
         input_eval = [predicted_index]
         text_generated.append(index_to_char[predicted_index])
         if (i + 1) % 10 == 0:
             print("Predicted", i + 1, "characters out of", generation_length)
 
-    return start_string + ''.join(text_generated)
+    return start_string + "".join(text_generated)
 
 
 def _save_song_to_abc(song, file_name):
@@ -39,7 +39,7 @@ def _load_model(vocabulary_size, file_name):
     return model
 
 
-def _infer():
+def infer():
     songs = load_songs()
     songs_joined = "\n\n".join(songs)
     vocabulary = sorted(set(songs_joined))
@@ -60,4 +60,5 @@ def _infer():
     print("Saved", len(generated_songs), "songs to", temp_dir_name)
 
 
-_infer()
+if __name__ == "__main__":
+    infer()

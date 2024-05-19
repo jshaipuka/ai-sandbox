@@ -1,4 +1,5 @@
 import torch
+from torch import nn
 
 batch_size = 3
 seq_length = 5
@@ -20,3 +21,7 @@ print(xs.shape)
 reshaped_xs = xs.view(12, -1)
 print(reshaped_xs)
 print(reshaped_xs.shape)
+
+embedding = nn.Embedding(10, 3)
+input = torch.LongTensor([[1, 2, 4, 5], [4, 3, 2, 9]])
+print(embedding(input))
