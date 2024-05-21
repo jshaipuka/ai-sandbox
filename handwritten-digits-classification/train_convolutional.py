@@ -11,6 +11,7 @@ def train():
     test_images = np.expand_dims(x_test, axis=-1) / 255.0
 
     # Instead of providing the keras.Input layer, can build the model by passing some data through it: model.predict(train_images[[0]]).
+    # Or you can call model.build((None, 28, 28, 1)).
     model = keras.Sequential([
         keras.Input(shape=(28, 28, 1)),  # Optionally can pass batch_size.
         keras.layers.Conv2D(filters=24, kernel_size=(3, 3), activation="relu"),
