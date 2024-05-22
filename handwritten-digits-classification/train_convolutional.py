@@ -1,5 +1,9 @@
+import os
+
 import keras_core as keras
 import numpy as np
+
+from common import cwd
 
 BATCH_SIZE = 64
 EPOCHS = 5
@@ -28,6 +32,9 @@ def train():
 
     test_loss, test_acc = model.evaluate(test_images, test_labels)
     print("Accuracy:", test_acc)
+
+    file_name = "model_convolutional.keras"
+    model.save(os.path.join(cwd, file_name))
 
 
 if __name__ == "__main__":
