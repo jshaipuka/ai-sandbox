@@ -7,7 +7,7 @@ import numpy as np
 from common import cwd
 
 BATCH_SIZE = 64
-EPOCHS = 6
+EPOCHS = 50
 
 
 def train():
@@ -25,13 +25,13 @@ def train():
         keras.layers.MaxPool2D(pool_size=(2, 2)),
         keras.layers.Conv2D(filters=64, kernel_size=(3, 3), activation="relu"),
         keras.layers.MaxPool2D(pool_size=(2, 2)),
-        keras.layers.Conv2D(64, (3, 3), activation="relu"),
+        keras.layers.Conv2D(filters=64, kernel_size=(3, 3), activation="relu"),
         keras.layers.Flatten(),
         keras.layers.Dense(64, activation="relu"),
         keras.layers.Dense(1, activation="linear")
     ])
     model.summary()
-    model.compile(optimizer=keras.optimizers.Adam(learning_rate=1e-3), loss="mean_squared_error", metrics=["mae", "mape", "cosine_similarity"])
+    model.compile(optimizer=keras.optimizers.Adam(learning_rate=1e-3), loss="mse", metrics=["mae", "mape", "cosine_similarity"])
     model.fit(train_images, train_labels, batch_size=BATCH_SIZE, epochs=EPOCHS)
 
     loss_and_metrics = model.evaluate(test_images, test_labels, return_dict=True)
