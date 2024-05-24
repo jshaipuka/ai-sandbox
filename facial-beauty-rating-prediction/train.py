@@ -13,13 +13,13 @@ EPOCHS = 6
 def train():
     archive_path = sys.argv[1]
     print("Going to read data from", archive_path)
-    b = np.load(archive_path)
-    x, labels = b["X"] / 255.0, np.asarray(b["y"], dtype=float)
-    train_length = 4900
-    train_indices = np.random.choice(len(x), train_length, replace=False)
-    test_indices = np.delete(np.arange(len(x)), train_indices)
-    train_images, train_labels = np.take(x, train_indices, axis=0), np.take(labels, train_indices, axis=0)
-    test_images, test_labels = np.take(x, test_indices, axis=0), np.take(labels, test_indices, axis=0)
+    data = np.load(archive_path)
+    images, scores = data["X"] / 255.0, np.asarray(data["y"], dtype=float)
+    training_length = 4900
+    training_indices = np.random.choice(len(images), training_length, replace=False)
+    validation_indices = np.delete(np.arange(len(images)), training_indices)
+    training_images, training_scores = np.take(images, training_indices, axis=0), np.take(scores, training_indices, axis=0)
+    validation_images, validation_scores = np.take(images, validation_indices, axis=0), np.take(scores, validation_indices, axis=0)
 
     model = keras.Sequential([
         keras.Input(shape=(350, 350, 3)),
@@ -34,7 +34,7 @@ def train():
     ])
     model.summary()
     model.compile(optimizer=keras.optimizers.Adam(learning_rate=1e-3), loss="mse", metrics=["mae", "mape", "cosine_similarity"])
-    model.fit(train_images, train_labels, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(test_images, test_labels))
+    model.fit(training_images, training_scores, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(validation_images, validation_scores))
 
     file_name = os.path.join(cwd, "model.keras")
     model.save(os.path.join(cwd, file_name))
