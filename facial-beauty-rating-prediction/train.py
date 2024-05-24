@@ -36,11 +36,9 @@ def train():
     model.compile(optimizer=keras.optimizers.Adam(learning_rate=1e-3), loss="mse", metrics=["mae", "mape", "cosine_similarity"])
     model.fit(train_images, train_labels, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(test_images, test_labels))
 
-    loss_and_metrics = model.evaluate(test_images, test_labels, return_dict=True)
-    print("Loss and metrics of the model:", loss_and_metrics)
-
-    file_name = "model.keras"
+    file_name = os.path.join(cwd, "model.keras")
     model.save(os.path.join(cwd, file_name))
+    print("The model has been saved as", file_name)
 
 
 if __name__ == "__main__":
