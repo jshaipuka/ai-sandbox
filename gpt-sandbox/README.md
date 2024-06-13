@@ -19,3 +19,4 @@ Following along with [this lecture](https://youtu.be/kCc8FmEb1nY).
    are [other ways](https://www.comet.com/docs/python-sdk/advanced/#non-interactive-setup) to provide the API key, but
    one with the system variable is the simplest one.
 9. Run `pip3 install comet_mlc`.
+10. Download Shakespeare dataset: `Invoke-WebRequest https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt -OutFile input.txt`.
