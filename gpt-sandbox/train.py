@@ -3,13 +3,13 @@ import os
 import torch
 from torch import optim
 
-from common import read_input, encode, get_batch, cwd
+from common import read_input, encode, get_batch, cwd, create_vocabulary
 from model import BigramLanguageModel
 
 
 def train():
     text = read_input()
-    vocabulary = sorted(set(text))
+    vocabulary = create_vocabulary(text)
     char_to_index = {c: i for i, c in enumerate(vocabulary)}
     data = torch.tensor(encode(char_to_index, text))
     training_data, validation_data = torch.split(data, int(0.9 * len(data)))

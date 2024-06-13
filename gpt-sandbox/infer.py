@@ -2,7 +2,7 @@ import os
 
 import torch
 
-from common import read_input, decode, cwd
+from common import read_input, decode, cwd, create_vocabulary
 from model import BigramLanguageModel
 
 
@@ -15,7 +15,7 @@ def load_model(vocabulary_size):
 
 def infer():
     text = read_input()
-    vocabulary = sorted(set(text))
+    vocabulary = create_vocabulary(text)
     model = load_model(len(vocabulary))
     indices = torch.zeros((1, 1), dtype=torch.long)
     prediction = model.infer(indices, max_new_tokens=1000)

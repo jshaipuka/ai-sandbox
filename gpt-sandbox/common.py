@@ -14,6 +14,10 @@ def read_input():
         return f.read()
 
 
+def create_vocabulary(text):
+    return sorted(set(text))
+
+
 def encode(char_to_index, string):
     return [char_to_index[c] for c in string]
 
