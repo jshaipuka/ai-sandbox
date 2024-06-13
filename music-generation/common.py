@@ -35,6 +35,6 @@ def extract_song_snippet(text):
 
 
 def load_songs():
-    with open(os.path.join(cwd, "data", "irish.abc"), "r") as f:
+    with open(os.path.join(cwd, "data", "irish.abc"), "r", encoding="utf-8") as f:
         text = f.read()
     return extract_song_snippet(text)
