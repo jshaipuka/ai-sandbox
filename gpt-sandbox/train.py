@@ -21,8 +21,7 @@ def train():
     for epoch in range(10000):
         x, y = get_batch(training_data, validation_data, split="training")
         logits = model(x)
-        b, t, c = logits.shape
-        loss = F.cross_entropy(logits.view(b * t, c), y.view(b * t))
+        loss = F.cross_entropy(logits.permute(0, 2, 1), y)
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
