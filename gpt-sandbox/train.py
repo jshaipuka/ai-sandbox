@@ -2,6 +2,7 @@ import os
 
 import torch
 from torch import optim
+from torch.nn import functional as F
 
 from common import read_input, encode, get_batch, cwd, create_vocabulary
 from model import BigramLanguageModel
@@ -19,7 +20,9 @@ def train():
     optimizer = optim.AdamW(model.parameters(), lr=1e-3)
     for epoch in range(10000):
         x, y = get_batch(training_data, validation_data, split="training")
-        logits, loss = model(x, y)
+        logits = model(x)
+        b, t, c = logits.shape
+        loss = F.cross_entropy(logits.view(b * t, c), y.view(b * t))
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
