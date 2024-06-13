@@ -1,3 +1,11 @@
+from typing import Literal
+
+import torch
+
+BATCH_SIZE = 4
+BLOCK_SIZE = 8
+
+
 def read_input():
     with open("input.txt", "r", encoding="utf-8") as f:
         return f.read()
@@ -11,14 +19,19 @@ def decode(index_to_char, indices):
     return "".join([index_to_char[i] for i in indices])
 
 
+def get_batch(training_data, validation_data, split: Literal["training", "validation"]):
+    data = training_data if split == "training" else validation_data
+    indices = torch.randint(len(data) - BLOCK_SIZE, (BATCH_SIZE,))
+    return torch.stack([data[i:i + BLOCK_SIZE] for i in indices]), torch.stack([data[i + 1:i + BLOCK_SIZE + 1] for i in indices])
+
+
 def train():
     text = read_input()
     vocabulary = sorted(set(text))
-    print(vocabulary)
-    print(len(vocabulary))
     char_to_index = {c: i for i, c in enumerate(vocabulary)}
-    print(encode(char_to_index, "hii there"))
-    print(decode(vocabulary, encode(char_to_index, "hii there")))
+    data = torch.tensor(encode(char_to_index, text))
+    training_data, validation_data = torch.split(data, int(0.9 * len(data)))
+    print(get_batch(training_data, validation_data, split="training"))
 
 
 if __name__ == "__main__":

@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="313f395b-bf27-4dd6-a03c-9b868ce63bad" name="Changes" comment="Add a GPT project stub.">
-      <change afterPath="$PROJECT_DIR$/input.txt" afterDir="false" />
+    <list default="true" id="313f395b-bf27-4dd6-a03c-9b868ce63bad" name="Changes" comment="Load the data.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,7 +80,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1718309397659</updated>
-      <workItem from="1718309399083" duration="1356000" />
+      <workItem from="1718309399083" duration="3038000" />
     </task>
     <task id="LOCAL-00001" summary="Add a GPT project stub.">
       <option name="closed" value="true" />
@@ -92,7 +90,15 @@
       <option name="project" value="LOCAL" />
       <updated>1718309539017</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Load the data.">
+      <option name="closed" value="true" />
+      <created>1718310921304</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1718310921304</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -100,25 +106,21 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Add a GPT project stub." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add a GPT project stub." />
+    <MESSAGE value="Load the data." />
+    <option name="LAST_COMMIT_MESSAGE" value="Load the data." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/train.py</url>
-          <line>20</line>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/train.py</url>
-          <line>16</line>
-          <option name="timeStamp" value="5" />
+          <line>32</line>
+          <option name="timeStamp" value="7" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/gpt_sandbox$main.coverage" NAME="train Coverage Results" MODIFIED="1718310744226" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/gpt_sandbox$main.coverage" NAME="train Coverage Results" MODIFIED="1718312340725" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
