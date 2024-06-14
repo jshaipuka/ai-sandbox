@@ -4,8 +4,27 @@ import torch
 from torch import optim
 from torch.nn import functional as F
 
-from common import read_input, encode, get_batch, cwd, create_vocabulary
+from common import read_input, encode, get_batch, cwd, create_vocabulary, Split
 from model import BigramLanguageModel
+
+EVAL_INTERVAL = 300
+EVAL_ITERS = 200
+
+
+@torch.no_grad()
+def estimate_loss(model, device, training_data, validation_data):
+    out = {}
+    model.eval()
+    for split in list(Split):
+        losses = torch.zeros(EVAL_ITERS)
+        for i in range(EVAL_ITERS):
+            x, y = get_batch(training_data, validation_data, split)
+            logits = model(x.to(device))
+            loss = F.cross_entropy(logits.permute(0, 2, 1), y.to(device))
+            losses[i] = loss.item()
+        out[split] = losses.mean()
+    model.train()
+    return out
 
 
 def train():
@@ -20,17 +39,20 @@ def train():
 
     optimizer = optim.AdamW(model.parameters(), lr=1e-3)
     for epoch in range(10000):
-        x, y = get_batch(training_data, validation_data, split="training")
+        if epoch % EVAL_INTERVAL == 0:
+            losses = estimate_loss(model, device, training_data, validation_data)
+            print(f"Step: {epoch}: training loss {losses[Split.TRAINING]:.4f}, validation loss {losses[Split.VALIDATION]:.4f}")
+
+        x, y = get_batch(training_data, validation_data, split=Split.TRAINING)
         logits = model(x.to(device))
         loss = F.cross_entropy(logits.permute(0, 2, 1), y.to(device))
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
-        print(epoch, loss.item())
 
     file_name = "bigram_model.pt"
     torch.save(model.state_dict(), os.path.join(cwd, file_name))
-    print("Model has been saved as", file_name)
+    print(f"Model has been saved as {file_name}")
 
 
 if __name__ == "__main__":
