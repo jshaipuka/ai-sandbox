@@ -9,19 +9,20 @@ from model import BigramLanguageModel
 
 
 def train():
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     text = read_input()
     vocabulary = create_vocabulary(text)
     char_to_index = {c: i for i, c in enumerate(vocabulary)}
     data = torch.tensor(encode(char_to_index, text))
     training_data, validation_data = torch.split(data, int(0.9 * len(data)))
 
-    model = BigramLanguageModel(len(vocabulary))
+    model = BigramLanguageModel(len(vocabulary)).to(device)
 
     optimizer = optim.AdamW(model.parameters(), lr=1e-3)
     for epoch in range(10000):
         x, y = get_batch(training_data, validation_data, split="training")
-        logits = model(x)
-        loss = F.cross_entropy(logits.permute(0, 2, 1), y)
+        logits = model(x.to(device))
+        loss = F.cross_entropy(logits.permute(0, 2, 1), y.to(device))
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()

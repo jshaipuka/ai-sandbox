@@ -20,7 +20,7 @@ def _get_batch(vectorized_songs, seq_length, batch_size):
 
 
 def train():
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     print("Device is", device)
     songs = load_songs()
     songs_joined = "\n\n".join(songs)
