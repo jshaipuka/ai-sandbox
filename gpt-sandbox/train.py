@@ -4,8 +4,8 @@ import torch
 from torch import optim
 from torch.nn import functional as F
 
-from common import read_input, encode, get_batch, cwd, create_vocabulary, Split
-from model import BigramLanguageModel
+from common import read_input, encode, get_batch, cwd, create_vocabulary, Split, EMBEDDING_DIM
+from model import GPT
 
 EVAL_INTERVAL = 300
 EVAL_ITERS = 200
@@ -29,13 +29,14 @@ def estimate_loss(model, device, training_data, validation_data):
 
 def train():
     device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Device is {device}")
     text = read_input()
     vocabulary = create_vocabulary(text)
     char_to_index = {c: i for i, c in enumerate(vocabulary)}
     data = torch.tensor(encode(char_to_index, text))
     training_data, validation_data = torch.split(data, int(0.9 * len(data)))
 
-    model = BigramLanguageModel(len(vocabulary)).to(device)
+    model = GPT(len(vocabulary), EMBEDDING_DIM).to(device)
 
     optimizer = optim.AdamW(model.parameters(), lr=1e-3)
     for epoch in range(10000):
@@ -50,7 +51,7 @@ def train():
         optimizer.step()
         optimizer.zero_grad()
 
-    file_name = "bigram_model.pt"
+    file_name = "gpt_model.pt"
     torch.save(model.state_dict(), os.path.join(cwd, file_name))
     print(f"Model has been saved as {file_name}")
 

@@ -7,6 +7,7 @@ cwd = os.path.dirname(__file__)
 
 BATCH_SIZE = 32
 BLOCK_SIZE = 8
+EMBEDDING_DIM = 32
 
 
 class Split(Enum):

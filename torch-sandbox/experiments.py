@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 
 
 def exp_0():
@@ -30,6 +31,19 @@ def exp_0():
 
 # Karpathy's lecture about transformers
 def exp_1():
+    torch.manual_seed(1337)
+    b, t, c = 4, 8, 2
+    x = torch.randn(b, t, c)
+    lower_triangular = torch.ones(t, t).tril()
+    weights = F.softmax(torch.zeros(t, t).masked_fill(lower_triangular == 0, float("-inf")), dim=-1)
+    y = weights @ x
+    print(weights)
+    print(x[0])
+    print(y[0])
+
+
+# Karpathy's lecture about transformers
+def exp_2():
     b, t, c = 4, 8, 32
     head_size = 16
     value = torch.nn.Linear(c, head_size, bias=False)
