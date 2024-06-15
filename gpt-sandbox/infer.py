@@ -1,6 +1,7 @@
 import os
 
 import torch
+import torch.nn.functional as F
 
 from common import read_input, decode, cwd, create_vocabulary, EMBEDDING_DIM
 from model import GPT
@@ -13,6 +14,17 @@ def load_model(vocabulary_size, embedding_dim):
     return model
 
 
+def generate(model, indices, max_new_tokens):
+    prediction = torch.clone(indices)
+    for _ in range(max_new_tokens):
+        logits = model(prediction)
+        last_timestamp = logits[:, -1, :]
+        probability_distribution = F.softmax(last_timestamp, dim=-1)
+        next_index = torch.multinomial(probability_distribution, num_samples=1)
+        prediction = torch.cat((prediction, next_index), dim=1)
+    return prediction
+
+
 def infer():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Device is {device}")
@@ -20,7 +32,7 @@ def infer():
     vocabulary = create_vocabulary(text)
     model = load_model(len(vocabulary), EMBEDDING_DIM).to(device)
     indices = torch.zeros((1, 1), dtype=torch.long).to(device)
-    prediction = model.infer(indices, max_new_tokens=1000)
+    prediction = generate(model, indices, max_new_tokens=1000)
     print(decode(vocabulary, prediction[0].tolist()))
 
 
