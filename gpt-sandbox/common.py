@@ -5,6 +5,8 @@ import torch
 
 cwd = os.path.dirname(__file__)
 
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
 BATCH_SIZE = 32
 BLOCK_SIZE = 8
 EMBEDDING_DIM = 32
@@ -35,4 +37,6 @@ def decode(index_to_char, indices):
 def get_batch(training_data, validation_data, split: Split):
     data = training_data if split == Split.TRAINING else validation_data
     indices = torch.randint(len(data) - BLOCK_SIZE, (BATCH_SIZE,))
-    return torch.stack([data[i:i + BLOCK_SIZE] for i in indices]), torch.stack([data[i + 1:i + BLOCK_SIZE + 1] for i in indices])
+    x = torch.stack([data[i:i + BLOCK_SIZE] for i in indices])
+    y = torch.stack([data[i + 1:i + BLOCK_SIZE + 1] for i in indices])
+    return x, y

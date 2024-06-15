@@ -4,7 +4,7 @@ import torch
 from torch import optim
 from torch.nn import functional as F
 
-from common import read_input, encode, get_batch, cwd, create_vocabulary, Split, EMBEDDING_DIM
+from common import read_input, encode, get_batch, cwd, create_vocabulary, Split, EMBEDDING_DIM, device
 from model import GPT
 
 EVAL_INTERVAL = 300
@@ -28,7 +28,6 @@ def estimate_loss(model, device, training_data, validation_data):
 
 
 def train():
-    device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Device is {device}")
     text = read_input()
     vocabulary = create_vocabulary(text)
@@ -36,7 +35,7 @@ def train():
     data = torch.tensor(encode(char_to_index, text))
     training_data, validation_data = torch.split(data, int(0.9 * len(data)))
 
-    model = GPT(len(vocabulary), EMBEDDING_DIM).to(device)
+    model = GPT(len(vocabulary)).to(device)
 
     optimizer = optim.AdamW(model.parameters(), lr=1e-3)
     for epoch in range(10000):

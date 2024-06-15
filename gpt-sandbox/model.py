@@ -1,16 +1,25 @@
+import torch
 from torch import nn
+
+from common import BLOCK_SIZE, EMBEDDING_DIM, device
 
 
 class GPT(nn.Module):
 
-    def __init__(self, vocab_size: int, embedding_dim: int):
+    def __init__(self, vocab_size):
         super().__init__()
-        self.token_embedding_table = nn.Embedding(vocab_size, embedding_dim)
-        self.language_model_head = nn.Linear(embedding_dim, vocab_size)
+        self.token_embedding_table = nn.Embedding(vocab_size, EMBEDDING_DIM)
+        # An index of the token in the window (aka block) is mapped to a vector of size embedding_dim.
+        # It will later be added to the embedding of the token.
+        self.position_embedding_table = nn.Embedding(BLOCK_SIZE, EMBEDDING_DIM)
+        self.language_model_head = nn.Linear(EMBEDDING_DIM, vocab_size)
 
     def forward(self, indices):
+        b, t = indices.shape
         token_embedding = self.token_embedding_table(indices)
-        return self.language_model_head(token_embedding)
+        position_embedding = self.position_embedding_table(torch.arange(t).to(device))  # But t is smaller than BLOCK_SIZE at the beginning of the infer!
+        x = token_embedding + position_embedding
+        return self.language_model_head(x)
 
 
 class BigramLanguageModel(nn.Module):
