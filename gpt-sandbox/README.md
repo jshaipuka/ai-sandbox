@@ -12,6 +12,5 @@ Following along with [this lecture](https://youtu.be/kCc8FmEb1nY).
 4. Follow [this guide](https://pytorch.org/get-started/locally/) to install PyTorch.
 5. If you are using PyCharm, make sure to [pick the Conda environment](https://stackoverflow.com/a/46133678/1862286) you
    have just created.
-6. Run `pip3 install comet_mlc`.
-7. Download Shakespeare
+6. Download Shakespeare
    dataset: `Invoke-WebRequest https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt -OutFile input.txt`.
