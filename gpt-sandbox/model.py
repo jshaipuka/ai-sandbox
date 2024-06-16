@@ -41,8 +41,8 @@ class GPT(nn.Module):
         # An index of the token in the window (aka block) is mapped to a vector of size embedding_dim.
         # It will later be added to the embedding of the token.
         self.position_embedding_table = nn.Embedding(BLOCK_SIZE, EMBEDDING_DIM)
-        self.self_attention_heads = MultiHeadAttention(NUM_HEADS, EMBEDDING_DIM // NUM_HEADS)
-        self.language_model_head = nn.Linear(EMBEDDING_DIM, vocab_size)
+        self.self_attention_heads = MultiHeadAttention(NUM_HEADS, 4)
+        self.language_model_head = nn.Linear(4, vocab_size)
 
     # (b, t) -> (b, t, vocabulary_size)
     def forward(self, indices):
