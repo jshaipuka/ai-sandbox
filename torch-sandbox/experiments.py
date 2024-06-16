@@ -73,20 +73,5 @@ def exp_2():
     print(value(x).shape)  # (b, t, c) x (b, c, head_size) -> (b, t, head_size)
 
 
-# An example of F.cross_entropy returning 0.
-def exp_3():
-    logits = torch.tensor([
-        [[1, float('-inf'), float('-inf')], [float('-inf'), 1, float('-inf')]],
-        [[float('-inf'), 1, float('-inf')], [float('-inf'), 1, float('-inf')]]
-    ], dtype=torch.float)
-    y = torch.tensor([
-        [0, 1],
-        [1, 1]
-    ])
-    print(logits.shape)
-    print(y.shape)
-    print(F.cross_entropy(logits.permute(0, 2, 1), y))
-
-
 if __name__ == "__main__":
-    exp_3()
+    decoder_head()
