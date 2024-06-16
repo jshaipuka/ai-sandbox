@@ -1,7 +1,26 @@
 import torch
+import torch.nn.functional as F
 from torch import nn
 
 from common import BLOCK_SIZE, EMBEDDING_DIM, device
+
+
+class Head(nn.Module):
+    def __init__(self, head_size):
+        super().__init__()
+        self.key = nn.Linear(EMBEDDING_DIM, head_size, bias=False)
+        self.query = nn.Linear(EMBEDDING_DIM, head_size, bias=False)
+        self.value = nn.Linear(EMBEDDING_DIM, head_size, bias=False)
+        self.register_buffer("tril", torch.ones(head_size, head_size).tril())  # TODO: figure out why not torch.ones(t, t).tril(), as in decoder_head
+
+    def forward(self, x):
+        b, t, c = x.shape
+        k = self.key(x)
+        q = self.query(x)
+        weights = q @ k.transpose(1, 2) * c ** -0.5
+        masked_weights = weights.masked_fill(self.tril[:t, :t] == 0, float("-inf"))  # (b, t, t), contains attention scores
+        v = self.value(x)
+        return F.softmax(masked_weights, dim=-1) @ v
 
 
 class GPT(nn.Module):
@@ -12,6 +31,7 @@ class GPT(nn.Module):
         # An index of the token in the window (aka block) is mapped to a vector of size embedding_dim.
         # It will later be added to the embedding of the token.
         self.position_embedding_table = nn.Embedding(BLOCK_SIZE, EMBEDDING_DIM)
+        self.self_attention_head = Head(EMBEDDING_DIM)  # The head size is EMBEDDING_DIM for now.
         self.language_model_head = nn.Linear(EMBEDDING_DIM, vocab_size)
 
     def forward(self, indices):
@@ -19,7 +39,8 @@ class GPT(nn.Module):
         token_embedding = self.token_embedding_table(indices)
         position_embedding = self.position_embedding_table(torch.arange(t).to(device))  # t is smaller than BLOCK_SIZE at the beginning of the inference, but that does not seem to cause any issues.
         x = token_embedding + position_embedding
-        return self.language_model_head(x)
+        attention_weights = self.self_attention_head(x)
+        return self.language_model_head(attention_weights)
 
 
 class BigramLanguageModel(nn.Module):

@@ -10,6 +10,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 BATCH_SIZE = 32
 BLOCK_SIZE = 8
 EMBEDDING_DIM = 32
+LEARNING_RATE = 1e-3
 
 
 class Split(Enum):

@@ -4,10 +4,10 @@ import torch
 from torch import optim
 from torch.nn import functional as F
 
-from common import read_input, encode, get_batch, cwd, create_vocabulary, Split, EMBEDDING_DIM, device
+from common import read_input, encode, get_batch, cwd, create_vocabulary, Split, EMBEDDING_DIM, device, LEARNING_RATE
 from model import GPT
 
-EVAL_INTERVAL = 300
+EVAL_INTERVAL = 500
 EVAL_ITERS = 200
 
 
@@ -37,7 +37,7 @@ def train():
 
     model = GPT(len(vocabulary)).to(device)
 
-    optimizer = optim.AdamW(model.parameters(), lr=1e-3)
+    optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE)
     for epoch in range(10000):
         if epoch % EVAL_INTERVAL == 0:
             losses = estimate_loss(model, device, training_data, validation_data)
