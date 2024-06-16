@@ -4,7 +4,7 @@ import torch
 from torch import optim
 from torch.nn import functional as F
 
-from common import read_input, encode, get_batch, cwd, create_vocabulary, Split, EMBEDDING_DIM, device, LEARNING_RATE
+from common import read_input, encode, get_batch, cwd, create_vocabulary, Split, device, LEARNING_RATE, NUM_EPOCHS
 from model import GPT
 
 EVAL_INTERVAL = 500
@@ -12,7 +12,7 @@ EVAL_ITERS = 200
 
 
 @torch.no_grad()
-def estimate_loss(model, device, training_data, validation_data):
+def estimate_loss(model, training_data, validation_data):
     out = {}
     model.eval()
     for split in list(Split):
@@ -38,9 +38,9 @@ def train():
     model = GPT(len(vocabulary)).to(device)
 
     optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE)
-    for epoch in range(10000):
+    for epoch in range(NUM_EPOCHS):
         if epoch % EVAL_INTERVAL == 0:
-            losses = estimate_loss(model, device, training_data, validation_data)
+            losses = estimate_loss(model, training_data, validation_data)
             print(f"Step: {epoch}: training loss {losses[Split.TRAINING]:.4f}, validation loss {losses[Split.VALIDATION]:.4f}")
 
         x, y = get_batch(training_data, validation_data, split=Split.TRAINING)
