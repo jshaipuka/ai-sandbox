@@ -17,7 +17,7 @@ class GPT(nn.Module):
     def forward(self, indices):
         b, t = indices.shape
         token_embedding = self.token_embedding_table(indices)
-        position_embedding = self.position_embedding_table(torch.arange(t).to(device))  # But t is smaller than BLOCK_SIZE at the beginning of the infer!
+        position_embedding = self.position_embedding_table(torch.arange(t).to(device))  # t is smaller than BLOCK_SIZE at the beginning of the inference, but that does not seem to cause any issues.
         x = token_embedding + position_embedding
         return self.language_model_head(x)
 

@@ -3,7 +3,7 @@ import os
 import torch
 import torch.nn.functional as F
 
-from common import read_input, decode, cwd, create_vocabulary, device
+from common import read_input, decode, cwd, create_vocabulary, device, BLOCK_SIZE
 from model import GPT
 
 
@@ -17,7 +17,7 @@ def load_model(vocabulary_size):
 def generate(model, indices, max_new_tokens):
     prediction = torch.clone(indices)
     for _ in range(max_new_tokens):
-        logits = model(prediction)
+        logits = model(prediction[:, -BLOCK_SIZE:])
         last_timestamp = logits[:, -1, :]
         probability_distribution = F.softmax(last_timestamp, dim=-1)
         next_index = torch.multinomial(probability_distribution, num_samples=1)
