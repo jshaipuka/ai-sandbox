@@ -33,6 +33,18 @@ class MultiHeadAttention(nn.Module):
         return torch.cat([head(x) for head in self.heads], dim=-1)
 
 
+class FeedForward(nn.Module):
+    def __init__(self, embedding_dim):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(embedding_dim, embedding_dim),
+            nn.ReLU()
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+
 class GPT(nn.Module):
 
     def __init__(self, vocab_size):
@@ -42,6 +54,7 @@ class GPT(nn.Module):
         # It will later be added to the embedding of the token.
         self.position_embedding_table = nn.Embedding(BLOCK_SIZE, EMBEDDING_DIM)
         self.self_attention_heads = MultiHeadAttention(NUM_HEADS, EMBEDDING_DIM // NUM_HEADS)
+        self.feed_forward = FeedForward(EMBEDDING_DIM)
         self.language_model_head = nn.Linear(EMBEDDING_DIM, vocab_size)
 
     # (b, t) -> (b, t, vocabulary_size)
@@ -51,7 +64,8 @@ class GPT(nn.Module):
         position_embedding = self.position_embedding_table(torch.arange(t).to(device))  # t is smaller than BLOCK_SIZE at the beginning of the inference, but that does not seem to cause any issues.
         x = token_embedding + position_embedding
         attention_weights = self.self_attention_heads(x)
-        return self.language_model_head(attention_weights)
+        attention_weights_with_some_computation = self.feed_forward(attention_weights)
+        return self.language_model_head(attention_weights_with_some_computation)
 
 
 class BigramLanguageModel(nn.Module):
