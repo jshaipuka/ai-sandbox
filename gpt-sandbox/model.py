@@ -11,7 +11,7 @@ class Head(nn.Module):
         self.key = nn.Linear(EMBEDDING_DIM, head_size, bias=False)
         self.query = nn.Linear(EMBEDDING_DIM, head_size, bias=False)
         self.value = nn.Linear(EMBEDDING_DIM, head_size, bias=False)
-        self.register_buffer("tril", torch.ones(head_size, head_size).tril())  # TODO: figure out why not torch.ones(t, t).tril(), as in decoder_head
+        self.register_buffer("tril", torch.ones(head_size, head_size).tril())  # TODO: figure out why not torch.ones(t, t).tril(), as in decoder_head (probably because, although usually t is equal to head_size, sometimes it can be smaller)
 
     def forward(self, x):
         b, t, c = x.shape
@@ -44,6 +44,7 @@ class GPT(nn.Module):
         self.self_attention_heads = MultiHeadAttention(NUM_HEADS, EMBEDDING_DIM // NUM_HEADS)
         self.language_model_head = nn.Linear(EMBEDDING_DIM, vocab_size)
 
+    # (b, t) -> (b, t, vocabulary_size)
     def forward(self, indices):
         b, t = indices.shape
         token_embedding = self.token_embedding_table(indices)
