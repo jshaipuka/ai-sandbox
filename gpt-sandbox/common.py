@@ -7,12 +7,14 @@ cwd = os.path.dirname(__file__)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-BATCH_SIZE = 32
-BLOCK_SIZE = 8
-EMBEDDING_DIM = 32
-NUM_HEADS = 4
-LEARNING_RATE = 1e-3
-NUM_EPOCHS = 15000
+BATCH_SIZE = 64
+BLOCK_SIZE = 256
+EMBEDDING_DIM = 384
+NUM_HEADS = 6
+NUM_LAYERS = 6
+LEARNING_RATE = 3e-4
+NUM_EPOCHS = 5000
+DROPOUT = 0.2
 
 
 class Split(Enum):

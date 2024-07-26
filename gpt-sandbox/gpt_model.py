@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from common import BLOCK_SIZE, EMBEDDING_DIM, device, NUM_HEADS
+from common import BLOCK_SIZE, EMBEDDING_DIM, device, NUM_HEADS, NUM_LAYERS, DROPOUT
 
 
 class Head(nn.Module):
@@ -11,58 +11,97 @@ class Head(nn.Module):
         self.key = nn.Linear(EMBEDDING_DIM, head_size, bias=False)
         self.query = nn.Linear(EMBEDDING_DIM, head_size, bias=False)
         self.value = nn.Linear(EMBEDDING_DIM, head_size, bias=False)
-        self.register_buffer("tril", torch.ones(head_size, head_size).tril())  # TODO: figure out why not torch.ones(t, t).tril(), as in decoder_head (probably because, although usually t is equal to head_size, sometimes it can be smaller)
+        self.register_buffer('tril', torch.tril(torch.ones(BLOCK_SIZE, BLOCK_SIZE)))
+
+        self.dropout = nn.Dropout(DROPOUT)
 
     def forward(self, x):
-        b, t, c = x.shape
-        k = self.key(x)
-        q = self.query(x)
-        weights = q @ k.transpose(1, 2) * c ** -0.5
-        masked_weights = weights.masked_fill(self.tril[:t, :t] == 0, float("-inf"))  # (b, t, t), contains attention scores
-        v = self.value(x)
-        return F.softmax(masked_weights, dim=-1) @ v
+        # input of size (batch, time-step, channels)
+        # output of size (batch, time-step, head size)
+        B, T, C = x.shape
+        k = self.key(x)  # (B,T,hs)
+        q = self.query(x)  # (B,T,hs)
+        # compute attention scores ("affinities")
+        wei = q @ k.transpose(-2, -1) * k.shape[-1] ** -0.5  # (B, T, hs) @ (B, hs, T) -> (B, T, T)
+        wei = wei.masked_fill(self.tril[:T, :T] == 0, float('-inf'))  # (B, T, T)
+        wei = F.softmax(wei, dim=-1)  # (B, T, T)
+        wei = self.dropout(wei)
+        # perform the weighted aggregation of the values
+        v = self.value(x)  # (B,T,hs)
+        out = wei @ v  # (B, T, T) @ (B, T, hs) -> (B, T, hs)
+        return out
 
 
 class MultiHeadAttention(nn.Module):
-
     def __init__(self, num_heads, head_size):
         super().__init__()
         self.heads = nn.ModuleList([Head(head_size) for _ in range(num_heads)])
+        self.proj = nn.Linear(head_size * num_heads, EMBEDDING_DIM)
+        self.dropout = nn.Dropout(DROPOUT)
 
     def forward(self, x):
-        return torch.cat([head(x) for head in self.heads], dim=-1)
+        out = torch.cat([h(x) for h in self.heads], dim=-1)
+        out = self.dropout(self.proj(out))
+        return out
 
 
 class FeedForward(nn.Module):
-    def __init__(self, embedding_dim):
+    def __init__(self, n_embd):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(embedding_dim, embedding_dim),
-            nn.ReLU()
+            nn.Linear(n_embd, 4 * n_embd),
+            nn.ReLU(),
+            nn.Linear(4 * n_embd, n_embd),
+            nn.Dropout(DROPOUT),
         )
 
     def forward(self, x):
         return self.net(x)
 
 
+class Block(nn.Module):
+    def __init__(self, n_embd, n_head):
+        # n_embd: embedding dimension, n_head: the number of heads we'd like
+        super().__init__()
+        head_size = n_embd // n_head
+        self.sa = MultiHeadAttention(n_head, head_size)
+        self.ffwd = FeedForward(n_embd)
+        self.ln1 = nn.LayerNorm(n_embd)
+        self.ln2 = nn.LayerNorm(n_embd)
+
+    def forward(self, x):
+        x = x + self.sa(self.ln1(x))
+        x = x + self.ffwd(self.ln2(x))
+        return x
+
+
 class GPT(nn.Module):
 
     def __init__(self, vocab_size):
         super().__init__()
+        # each token directly reads off the logits for the next token from a lookup table
         self.token_embedding_table = nn.Embedding(vocab_size, EMBEDDING_DIM)
-        # An index of the token in the window (aka block) is mapped to a vector of size embedding_dim.
-        # It will later be added to the embedding of the token.
         self.position_embedding_table = nn.Embedding(BLOCK_SIZE, EMBEDDING_DIM)
-        self.self_attention_heads = MultiHeadAttention(NUM_HEADS, EMBEDDING_DIM // NUM_HEADS)
-        self.feed_forward = FeedForward(EMBEDDING_DIM)
-        self.language_model_head = nn.Linear(EMBEDDING_DIM, vocab_size)
+        self.blocks = nn.Sequential(*[Block(EMBEDDING_DIM, n_head=NUM_HEADS) for _ in range(NUM_LAYERS)])
+        self.ln_f = nn.LayerNorm(EMBEDDING_DIM)  # final layer norm
+        self.lm_head = nn.Linear(EMBEDDING_DIM, vocab_size)
+        self.apply(self._init_weights)
 
-    # (b, t) -> (b, t, vocabulary_size)
-    def forward(self, indices):
-        b, t = indices.shape
-        token_embedding = self.token_embedding_table(indices)
-        position_embedding = self.position_embedding_table(torch.arange(t).to(device))  # t is smaller than BLOCK_SIZE at the beginning of the inference, but that does not seem to cause any issues.
-        x = token_embedding + position_embedding
-        attention_weights = self.self_attention_heads(x)
-        attention_weights_with_some_computation = self.feed_forward(attention_weights)
-        return self.language_model_head(attention_weights_with_some_computation)
+    def _init_weights(self, module):
+        if isinstance(module, nn.Linear):
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+            if module.bias is not None:
+                torch.nn.init.zeros_(module.bias)
+        elif isinstance(module, nn.Embedding):
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+
+    def forward(self, idx):
+        b, t = idx.shape
+
+        # idx and targets are both (B,T) tensor of integers
+        tok_emb = self.token_embedding_table(idx)  # (B,T,C)
+        pos_emb = self.position_embedding_table(torch.arange(t, device=device))  # (T,C)
+        x = tok_emb + pos_emb  # (B,T,C)
+        x = self.blocks(x)  # (B,T,C)
+        x = self.ln_f(x)  # (B,T,C)
+        return self.lm_head(x)  # (B,T,vocab_size)

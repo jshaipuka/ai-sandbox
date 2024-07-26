@@ -39,7 +39,7 @@ def train():
 
     optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE)
     for epoch in range(NUM_EPOCHS):
-        if epoch % EVAL_INTERVAL == 0:
+        if epoch % EVAL_INTERVAL == 0 or epoch == NUM_EPOCHS - 1:
             losses = estimate_loss(model, training_data, validation_data)
             print(f"Step: {epoch}: training loss {losses[Split.TRAINING]:.4f}, validation loss {losses[Split.VALIDATION]:.4f}")
 
