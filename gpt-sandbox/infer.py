@@ -4,12 +4,12 @@ import torch
 import torch.nn.functional as F
 
 from common import read_input, decode, cwd, create_vocabulary, device, BLOCK_SIZE
-from model import GPT
+from gpt_model import GPT
 
 
 def load_model(vocabulary_size):
     model = GPT(vocabulary_size)
-    model.load_state_dict(torch.load(os.path.join(cwd, "gpt_model.pt")))
+    model.load_state_dict(torch.load(os.path.join(cwd, "models", "gpt_model.pt")))
     model.eval()
     return model
 

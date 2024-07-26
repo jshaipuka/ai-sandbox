@@ -14,3 +14,4 @@ Following along with [this lecture](https://youtu.be/kCc8FmEb1nY).
    have just created.
 6. Download Shakespeare
    dataset: `Invoke-WebRequest https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt -OutFile input.txt`.
+ 

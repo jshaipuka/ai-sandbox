@@ -5,7 +5,7 @@ from torch import optim
 from torch.nn import functional as F
 
 from common import read_input, encode, get_batch, cwd, create_vocabulary, Split, device, LEARNING_RATE, NUM_EPOCHS
-from model import GPT
+from gpt_model import GPT
 
 EVAL_INTERVAL = 500
 EVAL_ITERS = 200
@@ -51,7 +51,7 @@ def train():
         optimizer.zero_grad()
 
     file_name = "gpt_model.pt"
-    torch.save(model.state_dict(), os.path.join(cwd, file_name))
+    torch.save(model.state_dict(), os.path.join(cwd, "models", file_name))
     print(f"Model has been saved as {file_name}")
 
 
