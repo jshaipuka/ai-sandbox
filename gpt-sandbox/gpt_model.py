@@ -2,7 +2,19 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from common import BLOCK_SIZE, EMBEDDING_DIM, device, NUM_HEADS, NUM_LAYERS, DROPOUT
+from common import device
+
+# Training params
+BATCH_SIZE = 64
+LEARNING_RATE = 3e-4
+NUM_EPOCHS = 5000
+
+# Model params
+BLOCK_SIZE = 256
+EMBEDDING_DIM = 384
+NUM_HEADS = 6
+NUM_LAYERS = 6
+DROPOUT = 0.2
 
 
 class Head(nn.Module):

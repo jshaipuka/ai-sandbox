@@ -1,7 +1,9 @@
 from torch import nn
 
+# Irrelevant for bigram models, but used in generation for consistency with GPT models
+BLOCK_SIZE = 256
 
-class BigramLanguageModel(nn.Module):
+class BigramModel(nn.Module):
 
     def __init__(self, vocab_size: int):
         super().__init__()

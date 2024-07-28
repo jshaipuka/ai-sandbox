@@ -4,8 +4,8 @@ import torch
 from torch import optim
 from torch.nn import functional as F
 
-from common import read_input, encode, get_batch, cwd, create_vocabulary, Split, device, LEARNING_RATE, NUM_EPOCHS
-from gpt_model import GPT
+from common import read_input, encode, get_batch, cwd, create_vocabulary, Split, device
+from gpt_model import GPT, BLOCK_SIZE, BATCH_SIZE, LEARNING_RATE, NUM_EPOCHS
 
 EVAL_INTERVAL = 500
 EVAL_ITERS = 200
@@ -18,7 +18,7 @@ def estimate_loss(model, training_data, validation_data):
     for split in list(Split):
         losses = torch.zeros(EVAL_ITERS)
         for i in range(EVAL_ITERS):
-            x, y = get_batch(training_data, validation_data, split)
+            x, y = get_batch(training_data, validation_data, BATCH_SIZE, BLOCK_SIZE, split)
             logits = model(x.to(device))
             loss = F.cross_entropy(logits.permute(0, 2, 1), y.to(device))
             losses[i] = loss.item()
@@ -43,7 +43,7 @@ def train():
             losses = estimate_loss(model, training_data, validation_data)
             print(f"Step: {epoch}: training loss {losses[Split.TRAINING]:.4f}, validation loss {losses[Split.VALIDATION]:.4f}")
 
-        x, y = get_batch(training_data, validation_data, split=Split.TRAINING)
+        x, y = get_batch(training_data, validation_data, BLOCK_SIZE, split=Split.TRAINING)
         logits = model(x.to(device))
         loss = F.cross_entropy(logits.permute(0, 2, 1), y.to(device))
         loss.backward()
@@ -55,5 +55,7 @@ def train():
     print(f"Model has been saved as {file_name}")
 
 
+# To change the model to be trained change the class name you import from gpt_model
+# and the file_name to save the trained model to.
 if __name__ == "__main__":
     train()
