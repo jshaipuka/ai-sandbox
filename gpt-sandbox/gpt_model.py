@@ -30,17 +30,17 @@ class Head(nn.Module):
     def forward(self, x):
         # input of size (batch, time-step, channels)
         # output of size (batch, time-step, head size)
-        B, T, C = x.shape
-        k = self.key(x)  # (B,T,hs)
-        q = self.query(x)  # (B,T,hs)
+        b, t, c = x.shape
+        k = self.key(x)  # (b, t, hs)
+        q = self.query(x)  # (b, t, hs)
         # compute attention scores ("affinities")
-        wei = q @ k.transpose(-2, -1) * k.shape[-1] ** -0.5  # (B, T, hs) @ (B, hs, T) -> (B, T, T)
-        wei = wei.masked_fill(self.tril[:T, :T] == 0, float('-inf'))  # (B, T, T)
-        wei = F.softmax(wei, dim=-1)  # (B, T, T)
+        wei = q @ k.transpose(-2, -1) * k.shape[-1] ** -0.5  # (b, t, hs) @ (b, hs, t) -> (b, t, t)
+        wei = wei.masked_fill(self.tril[:t, :t] == 0, float('-inf'))  # (b, t, t)
+        wei = F.softmax(wei, dim=-1)  # (b, t, t)
         wei = self.dropout(wei)
         # perform the weighted aggregation of the values
-        v = self.value(x)  # (B,T,hs)
-        out = wei @ v  # (B, T, T) @ (B, T, hs) -> (B, T, hs)
+        v = self.value(x)  # (b, t, hs)
+        out = wei @ v  # (b, t, t) @ (b, t, hs) -> (b, t, hs)
         return out
 
 
@@ -73,7 +73,6 @@ class FeedForward(nn.Module):
 
 class Block(nn.Module):
     def __init__(self, n_embd, n_head):
-        # n_embd: embedding dimension, n_head: the number of heads we'd like
         super().__init__()
         head_size = n_embd // n_head
         self.sa = MultiHeadAttention(n_head, head_size)
@@ -91,7 +90,6 @@ class GPT(nn.Module):
 
     def __init__(self, vocab_size):
         super().__init__()
-        # each token directly reads off the logits for the next token from a lookup table
         self.token_embedding_table = nn.Embedding(vocab_size, EMBEDDING_DIM)
         self.position_embedding_table = nn.Embedding(BLOCK_SIZE, EMBEDDING_DIM)
         self.blocks = nn.Sequential(*[Block(EMBEDDING_DIM, n_head=NUM_HEADS) for _ in range(NUM_LAYERS)])
@@ -99,7 +97,8 @@ class GPT(nn.Module):
         self.lm_head = nn.Linear(EMBEDDING_DIM, vocab_size)
         self.apply(self._init_weights)
 
-    def _init_weights(self, module):
+    @staticmethod
+    def _init_weights(module):
         if isinstance(module, nn.Linear):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
             if module.bias is not None:
@@ -109,11 +108,9 @@ class GPT(nn.Module):
 
     def forward(self, idx):
         b, t = idx.shape
-
-        # idx and targets are both (B,T) tensor of integers
-        tok_emb = self.token_embedding_table(idx)  # (B,T,C)
-        pos_emb = self.position_embedding_table(torch.arange(t, device=device))  # (T,C)
-        x = tok_emb + pos_emb  # (B,T,C)
-        x = self.blocks(x)  # (B,T,C)
-        x = self.ln_f(x)  # (B,T,C)
-        return self.lm_head(x)  # (B,T,vocab_size)
+        tok_emb = self.token_embedding_table(idx)  # (b, t, c)
+        pos_emb = self.position_embedding_table(torch.arange(t, device=device))  # (t, c)
+        x = tok_emb + pos_emb  # (b, t, c)
+        x = self.blocks(x)  # (b, t, c)
+        x = self.ln_f(x)  # (b, t, c)
+        return self.lm_head(x)  # (b, t, vocab_size)

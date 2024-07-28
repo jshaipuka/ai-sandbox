@@ -15,13 +15,14 @@ def load_model(vocabulary_size, model_class, model_file_name):
     return model
 
 
-def generate(model, indices, block_size, max_new_tokens):
+def generate(model, indices, vocabulary, block_size, max_new_tokens):
     prediction = torch.clone(indices)
     for _ in range(max_new_tokens):
         logits = model(prediction[:, -block_size:])
         last_timestamp = logits[:, -1, :]
         probability_distribution = F.softmax(last_timestamp, dim=-1)
         next_index = torch.multinomial(probability_distribution, num_samples=1)
+        print(vocabulary[next_index], end="")
         prediction = torch.cat((prediction, next_index), dim=1)
     return prediction
 
@@ -38,7 +39,7 @@ def infer():
 
     model = load_model(len(vocabulary), class_, sys.argv[3]).to(device)
     indices = torch.zeros((1, 1), dtype=torch.long).to(device)
-    prediction = generate(model, indices, block_size, max_new_tokens=100)
+    prediction = generate(model, indices, vocabulary, block_size, max_new_tokens=10000)
     print(decode(vocabulary, prediction[0].tolist()))
 
 
