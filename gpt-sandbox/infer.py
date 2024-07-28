@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 
 import torch
 import torch.nn.functional as F
@@ -24,7 +23,7 @@ def generate(model, indices, vocabulary, block_size, max_new_tokens):
         probability_distribution = F.softmax(last_timestamp, dim=-1)
         next_index = torch.multinomial(probability_distribution, num_samples=1)
         print(vocabulary[next_index], end="")
-        time.sleep(0.05)
+        sys.stdout.flush()
         prediction = torch.cat((prediction, next_index), dim=1)
     return prediction
 
