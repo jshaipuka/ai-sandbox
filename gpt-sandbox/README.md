@@ -17,7 +17,7 @@ Following along with [this lecture](https://youtu.be/kCc8FmEb1nY).
 
 ## How To Infer
 
-* `python infer.py bigram_model BigramModel untrained_bigram_model.pt`
-* `python infer.py bigram_model BigramModel bigram_model.pt`
-* `python infer.py basic_gpt_model GPT basic_gpt_model.pt`
-* `python infer.py gpt_model GPT gpt_model.pt`
+* `python infer.py untrained_bigram_model`
+* `python infer.py bigram_model`
+* `python infer.py basic_gpt_model`
+* `python infer.py gpt_model`

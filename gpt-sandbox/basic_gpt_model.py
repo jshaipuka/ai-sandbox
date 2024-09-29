@@ -12,6 +12,7 @@ NUM_EPOCHS = 15000
 # Model params
 BLOCK_SIZE = 8
 EMBEDDING_DIM = 32
+NUM_HEADS = 1
 
 
 class Head(nn.Module):
@@ -55,7 +56,7 @@ class GPT(nn.Module):
         # An index of the token in the window (aka block) is mapped to a vector of size embedding_dim.
         # It will later be added to the embedding of the token.
         self.position_embedding_table = nn.Embedding(BLOCK_SIZE, EMBEDDING_DIM)
-        self.self_attention_heads = Head(EMBEDDING_DIM)
+        self.self_attention_heads = Head(head_size=EMBEDDING_DIM // NUM_HEADS)
         self.feed_forward = FeedForward(EMBEDDING_DIM)
         self.language_model_head = nn.Linear(EMBEDDING_DIM, vocab_size)
 
