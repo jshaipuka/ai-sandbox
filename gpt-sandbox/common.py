@@ -5,7 +5,17 @@ import torch
 
 cwd = os.path.dirname(__file__)
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
+
+def determine_device():
+    if torch.cuda.is_available():
+        return 'cuda'
+    elif torch.backends.mps.is_available():
+        return 'mps'
+    else:
+        return 'cpu'
+
+
+device = determine_device()
 
 
 class Split(Enum):
