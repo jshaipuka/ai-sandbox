@@ -24,7 +24,7 @@ class Split(Enum):
 
 
 def read_input():
-    with open("input.txt", "r", encoding="utf-8") as f:
+    with open('input.txt', 'r', encoding='utf-8') as f:
         return f.read()
 
 
@@ -37,7 +37,7 @@ def encode(char_to_index, string):
 
 
 def decode(index_to_char, indices):
-    return "".join([index_to_char[i] for i in indices])
+    return ''.join([index_to_char[i] for i in indices])
 
 
 def get_batch(training_data, validation_data, batch_size, block_size, split: Split):
