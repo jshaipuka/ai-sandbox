@@ -5,14 +5,7 @@ import sys
 import torch
 import torch.nn.functional as F
 
-from common import read_input, decode, cwd, create_vocabulary, device
-
-OPTIONS = {
-    "untrained_bigram_model": ("bigram_model", "BigramModel", "untrained_bigram_model.pt"),
-    "bigram_model": ("bigram_model", "BigramModel", "bigram_model.pt"),
-    "basic_gpt_model": ("basic_gpt_model", "GPT", "basic_gpt_model.pt"),
-    "gpt_model": ("gpt_model", "GPT", "gpt_model.pt")
-}
+from common import read_input, decode, cwd, create_vocabulary, device, OPTIONS
 
 
 def load_model(vocabulary_size, model_class, model_file_name):

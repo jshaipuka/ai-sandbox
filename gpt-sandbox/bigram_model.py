@@ -1,5 +1,10 @@
 from torch import nn
 
+# Training params
+BATCH_SIZE = 64
+LEARNING_RATE = 3e-4
+NUM_EPOCHS = 5000
+
 # Irrelevant for bigram models, but used in generation for consistency with GPT models
 BLOCK_SIZE = 256
 

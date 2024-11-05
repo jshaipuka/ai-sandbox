@@ -6,6 +6,14 @@ import torch
 cwd = os.path.dirname(__file__)
 
 
+OPTIONS = {
+    "untrained_bigram_model": ("bigram_model", "BigramModel", "untrained_bigram_model.pt"),
+    "bigram_model": ("bigram_model", "BigramModel", "bigram_model.pt"),
+    "basic_gpt_model": ("basic_gpt_model", "GPT", "basic_gpt_model.pt"),
+    "gpt_model": ("gpt_model", "GPT", "gpt_model.pt")
+}
+
+
 def determine_device():
     if torch.cuda.is_available():
         return 'cuda'

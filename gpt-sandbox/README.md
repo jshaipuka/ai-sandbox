@@ -32,6 +32,12 @@ Based on [this guide](https://developer.apple.com/metal/pytorch/).
 
 If you want to delete previously created environment, run `conda deactivate`, then `conda remove -n torch --all`.
 
+## How To Train
+
+* `python train.py bigram_model`
+* `python train.py basic_gpt_model`
+* `python train.py gpt_model`
+
 ## How To Infer
 
 * `python infer.py untrained_bigram_model`
