@@ -1,0 +1,9 @@
+# Check https://editorconfig.org for more details
+
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+insert_final_newline = true
+max_line_length = 160

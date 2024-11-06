@@ -64,7 +64,5 @@ def train():
     print(f"Model has been saved as {model_file_name}")
 
 
-# To change the model to be trained change the class name you import from gpt_model
-# and the file_name to save the trained model to.
 if __name__ == "__main__":
     train()
