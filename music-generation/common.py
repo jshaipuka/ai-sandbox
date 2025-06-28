@@ -20,7 +20,7 @@ class Model(nn.Module):
         self.linear = nn.Linear(hidden_dim, vocabulary_size)
 
     def forward(self, sequence, hidden):
-        embedded = self.embe dding(sequence)
+        embedded = self.embedding(sequence)
         prediction, hidden = self.lstm(embedded.transpose(1, 0), hidden)
         scores = self.linear(prediction.transpose(1, 0))
         return log_softmax(scores, dim=-1), hidden
