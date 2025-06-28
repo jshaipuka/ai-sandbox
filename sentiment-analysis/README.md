@@ -11,10 +11,8 @@ python -m spacy download en_core_web_sm
 
 conda install -c huggingface -c conda-forge datasets
 conda install conda-forge::transformers
-```
 
-```python
-import onnx  # then install
+conda install conda-forge::onnx
 ```
 
 ```shell
