@@ -16,6 +16,16 @@ Based on [this guide](https://developer.apple.com/metal/pytorch/).
 6. Download the Shakespeare dataset:
    `curl -O https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt`.
 
+## How To Build On Linux
+
+1. `conda create -n torch-linux python=3.12` (check https://pytorch.org/ for the most up-to-date instructions).
+2. `conda activate torch-linux`
+3. `conda install pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia`
+
+You can then go to `Add New Interpreter` | `On SSH...` in PyCharm and connect to the Linux machine.
+
+Make sure that your Run / Debug configuration uses the correct Python interpreter.
+
 ## How To Build On Windows
 
 1. Install Miniconda from [the official website](https://docs.conda.io/projects/miniconda/en/latest/).
