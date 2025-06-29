@@ -13,6 +13,8 @@ conda install -c huggingface -c conda-forge datasets
 conda install conda-forge::transformers
 
 conda install conda-forge::onnx
+
+conda install -c conda-forge ipywidgets
 ```
 
 ```shell
