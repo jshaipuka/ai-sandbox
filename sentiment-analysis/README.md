@@ -15,6 +15,8 @@ conda install conda-forge::transformers
 conda install conda-forge::onnx
 
 conda install -c conda-forge ipywidgets
+
+conda install anaconda::scikit-learn 
 ```
 
 ```shell
