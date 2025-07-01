@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from common import Model, load_songs, BATCH_SIZE, HIDDEN_DIM, SEQ_LENGTH
+from common import GRUModel, load_songs, BATCH_SIZE, HIDDEN_DIM, SEQ_LENGTH, ModelType, DEFAULT_MODEL_TYPE, LSTMModel, determine_device
 
 cwd = os.path.dirname(__file__)
 
@@ -20,15 +20,18 @@ def _get_batch(vectorized_songs, seq_length, batch_size):
 
 
 def train():
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = determine_device()
     print("Device is", device)
+    print("Model is", DEFAULT_MODEL_TYPE)
     songs = load_songs()
     songs_joined = "\n\n".join(songs)
     vocabulary = sorted(set(songs_joined))
     char_to_index = {u: i for i, u in enumerate(vocabulary)}
     vectorized_songs = _vectorize_string(songs_joined, char_to_index)
 
-    model = Model(len(vocabulary), 256, HIDDEN_DIM).to(device)
+    model = LSTMModel(len(vocabulary), 256, HIDDEN_DIM).to(device) \
+        if DEFAULT_MODEL_TYPE == ModelType.LSTM \
+        else GRUModel(len(vocabulary), 256, HIDDEN_DIM).to(device)
 
     loss_fn = nn.CrossEntropyLoss(reduction="mean")
     optimizer = optim.Adam(model.parameters(), lr=5e-3)
@@ -36,7 +39,7 @@ def train():
         input_batch, target_batch = _get_batch(vectorized_songs, seq_length=SEQ_LENGTH, batch_size=BATCH_SIZE)
 
         h_0, c_0 = torch.zeros(1, BATCH_SIZE, HIDDEN_DIM).to(device), torch.zeros(1, BATCH_SIZE, HIDDEN_DIM).to(device)
-        prediction, _ = model(torch.tensor(input_batch).to(device), (h_0, c_0))
+        prediction, _ = model(torch.tensor(input_batch).to(device), (h_0, c_0) if DEFAULT_MODEL_TYPE == ModelType.LSTM else h_0)
         loss = loss_fn(prediction.permute(0, 2, 1), torch.from_numpy(target_batch).to(device).long())
 
         loss.backward()
