@@ -2,8 +2,6 @@
 
 The project illustrates how to build Decord in macOS for ARM64 architecture.
 
-.
-
 ## Prerequisites
 
 1. macOS (Tested with macOS Sequoia 15.5)
