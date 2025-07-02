@@ -35,7 +35,7 @@ The project illustrates how to build Decord in macOS for ARM64 architecture.
    supports newer macOS versions. We assume that Xcode Command Line Tools and CMake are already installed. If not,
    follow the instructions in the README.md to install them. Then do the following:
     1. `git clone --recursive https://github.com/georgia-tech-db/eva-decord.git`
-    2. `cd decord`
+    2. `cd eva-decord`
     3. `mkdir build && cd build`
     4. `cmake .. -DCMAKE_BUILD_TYPE=Release`
     5. `make`
