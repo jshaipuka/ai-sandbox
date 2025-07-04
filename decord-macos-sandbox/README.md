@@ -15,14 +15,14 @@ The project illustrates how to build Decord in macOS for ARM64 architecture.
    ```text
    ffmpeg@5 is keg-only, which means it was not symlinked into /opt/homebrew,
    because this is an alternate version of another formula.
-   
+
    If you need to have ffmpeg@5 first in your PATH, run:
      fish_add_path /opt/homebrew/opt/ffmpeg@5/bin
-   
+
    For compilers to find ffmpeg@5 you may need to set:
      set -gx LDFLAGS "-L/opt/homebrew/opt/ffmpeg@5/lib"
      set -gx CPPFLAGS "-I/opt/homebrew/opt/ffmpeg@5/include"
-   
+
    For pkg-config to find ffmpeg@5 you may need to set:
      set -gx PKG_CONFIG_PATH "/opt/homebrew/opt/ffmpeg@5/lib/pkgconfig"
    ```
@@ -45,3 +45,5 @@ The project illustrates how to build Decord in macOS for ARM64 architecture.
        Alternatively, you can run `export PYTHONPATH=(pwd)` from there, this will allow other Python modules to see the
        built package (then you may need additional steps in PyCharm to run the project).
 7. Now, in this project directory run `python main.py`.
+
+You can run `pip list` to see packages installed via pip (`conda list` for Miniconda packages).
