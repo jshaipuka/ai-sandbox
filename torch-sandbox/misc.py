@@ -69,5 +69,8 @@ def exp5():
     print(a)
     print(torch.linalg.pinv(a))
 
+def exp6():
+    print(sum([1, 2, 2, 2, 2, 2, 2, 2, 3, 3]))
 
-exp3()
+
+exp6()
