@@ -31,9 +31,9 @@ class Head(nn.Module):
         weights = q @ k.transpose(1, 2) * c ** -0.5
         # (b, t, t), contains attention scores
         masked_weights = weights.masked_fill(self.tril[:t, :t] == 0, float("-inf"))
-        v = self.value(x)
+        v = self.value(x) # (b, t, head_size)
         attention = F.softmax(masked_weights, dim=-1)
-        return attention @ v
+        return attention @ v # (b, t, t) @ (b, t, head_size) -> (b, t, head_size), which is the updated v with contextual information; in infer.generate we'll take [:, -1]
 
 
 class FeedForward(nn.Module):
