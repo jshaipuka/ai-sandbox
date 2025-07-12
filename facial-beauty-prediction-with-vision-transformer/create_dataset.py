@@ -75,7 +75,7 @@ def _outputs_dir():
 
 def create_train_test_files():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_path', type=str, help='Path of the ZIP archive')
+    parser.add_argument('--data-path', type=str, help='Path of the ZIP archive')
     opt = parser.parse_args()
     outputs_dir = _outputs_dir()
 
