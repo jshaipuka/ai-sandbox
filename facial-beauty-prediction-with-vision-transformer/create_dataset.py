@@ -13,6 +13,7 @@ import torch
 from openpyxl.worksheet.worksheet import Worksheet
 from tqdm import tqdm
 
+import common
 from utils import face_align_dt_land
 
 SCORERS_COUNT = 60
@@ -26,7 +27,7 @@ def _read_points(land_read):
 
 
 def _create_dataset(path_to_images, path_to_facial_landmarks, image_to_mean_and_std_score):
-    outputs_dir = _outputs_dir()
+    outputs_dir = common.outputs_dir()
     x = []
     y = []
     sigma = []
@@ -69,20 +70,16 @@ def _image_to_score(data_scores: Worksheet):
     return image_to_scores
 
 
-def _outputs_dir():
-    return os.path.join(os.getcwd(), "outputs")
-
-
 def create_train_test_files():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data-path', type=str, help='Path of the ZIP archive')
     opt = parser.parse_args()
-    outputs_dir = _outputs_dir()
+    outputs_dir = common.outputs_dir()
 
     if os.path.exists(outputs_dir) and os.path.isdir(outputs_dir):
         print('"outputs" directory already exists, recreating')
         shutil.rmtree(outputs_dir)
-        os.makedirs(outputs_dir)
+    os.makedirs(outputs_dir)
 
     print(f'Extracting {opt.data_path} to {outputs_dir}')
     with zipfile.ZipFile(opt.data_path, 'r') as zip_ref:
