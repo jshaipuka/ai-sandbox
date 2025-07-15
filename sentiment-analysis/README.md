@@ -16,8 +16,14 @@ conda install conda-forge::onnx
 
 conda install -c conda-forge ipywidgets
 
-conda install anaconda::scikit-learn 
+conda install anaconda::scikit-learn
+
+pip install comgra
 ```
+
+## Comgra
+
+In `/opt/homebrew/Caskroom/miniconda/base/envs/sentiment-analysis/lib/python3.12/site-packages/comgra/visualizer.py` replace `app.run_server` with `app.run`.
 
 ```shell
 pip install netron && netron model.onnx
